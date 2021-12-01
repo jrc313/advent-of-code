@@ -1,14 +1,8 @@
 import os
 import argparse
-from itertools import starmap
-
-# Get pairs of items from iterable
-def pairwise(iterable, distance = 1):
-    for i in range(distance, len(iterable)):
-        yield [iterable[i - distance], iterable[i]]
 
 def solve(input, distance):
-    return sum((starmap(lambda a, b: a < b, pairwise(input, distance))))
+    return sum([a < b for a, b in zip(input[0:-distance], input[distance:])])
 
 # Part 1
 def solve1(input):
