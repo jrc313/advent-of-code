@@ -4,7 +4,7 @@ from itertools import starmap
 
 # Return true if b is deeper than a
 def isDeeper(a, b):
-    return b > a
+    return int(b) > int(a)
 
 # Get pairs of items from iterable
 def pairwise(iterable):
