@@ -1,6 +1,7 @@
 import functools
 import os
 import argparse
+from functools import reduce
  
 H = 0
 D = 1
@@ -12,7 +13,7 @@ def solve1(input):
             "down": lambda ub, arg: [ub[H], ub[D] + arg],
             "up": lambda ub, arg: [ub[H], ub[D] - arg]}
    
-    ub = functools.reduce(lambda ub, item: proc[item[0]](ub, int(item[1])), input, [0, 0, 0])
+    ub = reduce(lambda ub, command: proc[command.name](ub, command.arg), input, [0, 0, 0])
     return f"h: {ub[H]}, d: {ub[D]}, mul: {ub[H] * ub[D]}"
  
 # Part 2
@@ -21,7 +22,7 @@ def solve2(input):
             "down": lambda ub, arg: [ub[H], ub[D], ub[A] + arg],
             "up": lambda ub, arg: [ub[H], ub[D], ub[A] - arg]}
    
-    ub = functools.reduce(lambda ub, item: proc[item[0]](ub, int(item[1])), input, [0, 0, 0])
+    ub = reduce(lambda ub, command: proc[command.name](ub, command.arg), input, [0, 0, 0])
     return f"h: {ub[H]}, d: {ub[D]}, mul: {ub[H] * ub[D]}"
  
 # Testing, testing
@@ -37,13 +38,19 @@ def get_input(filename = "input.txt", line_parser = lambda line: int(line)):
             input.append(line_parser(line.rstrip()))
  
     return input
- 
+
+new = lambda **kwargs: type("Object", (), kwargs)
+def line_parser(line):
+    parts = line.split()
+    return new(name = parts[0], arg = int(parts[1]))
+
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-t", "--test", action = "store_true")
 args = parser.parse_args()
- 
-input = get_input(line_parser = lambda line: line.split())
+
+input = get_input(line_parser = line_parser)
  
 if args.test:
     print(f"Test: {test()}")
