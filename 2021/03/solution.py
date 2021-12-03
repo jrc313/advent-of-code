@@ -2,80 +2,47 @@ import os
 import argparse
 from functools import reduce
 
-def gamma_reducer(acc, line):
-    for i in range(len(line)):
-        acc[i] += int(line[i])
-    return acc
-
-def bitlist_to_string(bitlist):
-    return "".join([str(b) for b in bitlist])
-
+# Convert a bit list to an integer using bit shift operations
 def bitlist_to_int(bitlist):
-    return int(bitlist_to_string(bitlist), 2)
+    return reduce(lambda i, e: i + (int(e[1]) << int(e[0])), enumerate(reversed(bitlist)), 0)
 
-def get_gamma_l(input):
+# Find the most common value at each position in the byte
+def reduce_to_common_bits(input):
     width = len(input[0])
-    count = len(input)
-    half_count = count / 2
-
-    acc = reduce(lambda acc, line: gamma_reducer(acc, line), input, [0] * width)
+    half_count = len(input) / 2
+    acc = reduce(lambda acc, line: [a + int(b) for a, b in zip(acc, line)], input, [0] * width)
     return [int(i >= half_count) for i in acc]
 
-# Part 1
-def solve1(input):
-    gamma_l = get_gamma_l(input)
-    epsilon_l = [int(not(b)) for b in gamma_l]
+# Multiply two bit lists and get an int back
+def bit_mul(a, b):
+    return bitlist_to_int(a) * bitlist_to_int(b)
 
-    gamma_s = bitlist_to_string(gamma_l)
-    epsilon_s = bitlist_to_string(epsilon_l)
-
-    gamma_i = bitlist_to_int(gamma_s)
-    epsilon_i = bitlist_to_int(epsilon_s)
-
-    answer = gamma_i * epsilon_i
-
-    return f"gamma: {gamma_i}, epsilon: {epsilon_i}, answer: {answer}"
-
-
-def reduce_to_one(input, low = False):
+# Recursively reduce list based on most common value at each position
+def reduce_to_one(input, flip = False):
     i = 0
     while len(input) > 1:
-        common = get_gamma_l(input)[i]
-        if low:
+        common = reduce_to_common_bits(list(line[i] for line in input))[0]
+        if flip:
             common = int(not(common))
         input = list(filter(lambda line: int(line[i]) == common, input))
         i += 1
     return input[0]
 
+# Part 1
+def solve1(input):
+    gamma_l = reduce_to_common_bits(input)
+    epsilon_l = [int(not(b)) for b in gamma_l]
+    return bit_mul(gamma_l, epsilon_l)
+
 # Part 2
 def solve2(input):
-
     o2_l = reduce_to_one(input, False)
     co2_l = reduce_to_one(input, True)
-
-    o2_i = bitlist_to_int(o2_l)
-    co2_i = bitlist_to_int(co2_l)
-
-    lsr = o2_i * co2_i
-
-    return f"o2: {o2_i}, co2: {co2_i}, lsr: {lsr}"
+    return bit_mul(o2_l, co2_l)
 
 # Testing, testing
 def test():
-    input = """00100
-11110
-10110
-10111
-10101
-01111
-00111
-11100
-10000
-11001
-00010
-01010""".splitlines()
-    return solve2(input)
-
+    return "TODO"
 
 def get_input(filename = "input.txt", line_parser = lambda line: int(line)):
     input_path = os.path.dirname(os.path.realpath(__file__)) + f"/{filename}"
