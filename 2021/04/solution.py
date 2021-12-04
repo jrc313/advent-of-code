@@ -11,9 +11,6 @@ def board_has_bingo(board, calls, w):
         if test_line([n for n in board[i::w]], calls): return True
     return False
 
-def non_matches(board, calls):
-    return list(set(board) - set(calls))
-
 def makeBoards(boardData):
     board = []
     for line in boardData:
@@ -33,7 +30,7 @@ def solve(input):
     for i in range(w, len(calls)):
         for board in boards:
             if board_has_bingo(board, calls[0:i], w):
-                wins.append(sum(non_matches(board, calls[0:i]) * calls[i - 1]))
+                wins.append(sum(list(set(board) - set(calls[0:i])) * calls[i - 1]))
                 boards.remove(board)
     
     return f"Part 1: {wins[0]}, Part 2: {wins[-1]}"
