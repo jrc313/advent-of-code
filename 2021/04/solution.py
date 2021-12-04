@@ -36,7 +36,7 @@ def solve(input):
 
     wins = []
 
-    for i in range(len(calls)):
+    for i in range(w, len(calls)):
         for board in boards:
             if board_has_bingo(board, calls[0:i], w):
                 wins.append(sum(non_matches(board, calls[0:i]) * calls[i - 1]))
