@@ -2,83 +2,47 @@ import os
 import argparse
 from functools import reduce
 
-class Board:
-    def __init__(self):
-        self.nums = []
-        self.w = 0
+def test_line(line, calls):
+    return reduce(lambda acc, n: acc + int(n in calls), line, 0) == len(line)
 
-    def addRow(self, row):
-        row = [int(n) for n in row.split()]
-        self.w = len(row)
-        self.nums += row
+def get_h_line(board, i, w):
+    return [n for n in board[i * w: i * w + w]]
 
-    def hasBingo(self, calls):
-        if self.testH(calls): return True
-        if self.testV(calls): return True
-        return False
+def get_v_line(board, i, w):
+    return [n for n in board[i::w]]
 
-    def testH(self, calls):
-        for i in range(self.w):
-            if self.testLine([n for n in self.nums[i * self.w: i * self.w + self.w]], calls):
-                return True
-        return False
+def board_has_bingo(board, calls, w):
+    for i in range(w):
+        if test_line(get_h_line(board, i, w), calls): return True
+        if test_line(get_v_line(board, i, w), calls): return True
+    return False
 
-    def testV(self, calls):
-        for i in range(self.w):
-            if self.testLine([n for n in self.nums[i::self.w]], calls):
-                return True
-        return False
-
-    def testLine(self, line, calls):
-        matches = reduce(lambda acc, n: acc + int(n in calls), line, 0)
-        if matches == self.w:
-            return True
-        return False
-
-    def printBoard(self):
-        print(f"{self.nums}")
-
-    def getNonMatches(self, calls):
-        return list(set(self.nums) - set(calls))
+def non_matches(board, calls):
+    return list(set(board) - set(calls))
 
 def makeBoards(boardData):
-    board = Board()
+    board = []
     for line in boardData:
         if not(line):
             yield board
-            board = Board()
-        board.addRow(line)
+            board = []
+        board += [int(n) for n in line.split()]
     yield board
 
-# Part 1
-def solve1(input):
+def solve(input):
     calls = [int(n) for n in input[0].split(",")]
     boards = list(makeBoards(input[2:]))
-
-    for i in range(len(calls)):
-        for board in boards:
-            if board.hasBingo(calls[0:i]):
-                non = board.getNonMatches(calls[0:i])
-                return sum(non) * calls[i - 1]
-
-    return "No Win!"
-
-# Part 2
-def solve2(input):
-    calls = [int(n) for n in input[0].split(",")]
-    boards = list(makeBoards(input[2:]))
+    w = len(input[2].split())
 
     wins = []
 
     for i in range(len(calls)):
-        print(f"calling {calls}")
         for board in boards:
-            if board.hasBingo(calls[0:i]):
-                non = board.getNonMatches(calls[0:i])
-                wins.append(sum(non) * calls[i - 1])
+            if board_has_bingo(board, calls[0:i], w):
+                wins.append(sum(non_matches(board, calls[0:i]) * calls[i - 1]))
                 boards.remove(board)
-
-    return wins[len(wins) - 1]
+    
+    return f"Part 1: {wins[0]}, Part 2: {wins[-1]}"
 
 # Testing, testing
 def test():
@@ -101,7 +65,7 @@ def test():
 18  8 23 26 20
 22 11 13  6  5
  2  0 12  3  7""".splitlines()
-    return solve1(input)
+    return solve(input)
 
 
 def get_input(filename = "input.txt"):
@@ -123,5 +87,4 @@ input = get_input()
 if args.test:
     print(f"Test: {test()}")
 else:
-    print(f"Part 1: {solve1(input)}")
-    print(f"Part 2: {solve2(input)}")
+    print(f"{solve(input)}")
