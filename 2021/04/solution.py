@@ -5,16 +5,10 @@ from functools import reduce
 def test_line(line, calls):
     return reduce(lambda acc, n: acc + int(n in calls), line, 0) == len(line)
 
-def get_h_line(board, i, w):
-    return [n for n in board[i * w: i * w + w]]
-
-def get_v_line(board, i, w):
-    return [n for n in board[i::w]]
-
 def board_has_bingo(board, calls, w):
     for i in range(w):
-        if test_line(get_h_line(board, i, w), calls): return True
-        if test_line(get_v_line(board, i, w), calls): return True
+        if test_line([n for n in board[i * w: i * w + w]], calls): return True
+        if test_line([n for n in board[i::w]], calls): return True
     return False
 
 def non_matches(board, calls):
