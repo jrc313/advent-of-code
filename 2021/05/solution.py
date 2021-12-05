@@ -19,7 +19,6 @@ def expand_line(pair):
     xdir = get_dir(p1[0], p2[0])
     ydir = get_dir(p1[1], p2[1])
     points = [f"{p1[0]},{p1[1]}"]
-    print(f"{p1}, {p2}, [{xdir}, {ydir}]")
     while not(p1[0] == p2[0] and p1[1] == p2[1]):
         p1[0] += xdir
         p1[1] += ydir
