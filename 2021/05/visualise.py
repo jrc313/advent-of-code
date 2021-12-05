@@ -1,7 +1,6 @@
 import os
 from functools import reduce
-from PIL import Image, ImageDraw, ImageColor, ImageFile
-from math import ceil
+from PIL import Image, ImageDraw
 
 def split_coord(coord_s):
     coord = coord_s.split(",")
