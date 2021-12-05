@@ -10,7 +10,7 @@ def get_coords(input):
     return [[split_coord(coords[0]), split_coord(coords[1])] for coords in pairs]
 
 def non_diagonal(coords):
-    return filter(lambda p: p[0][0] == p[1][0] or p[0][1] == p[1][1], coords)
+    return [p for p in coords if p[0][0] == p[1][0] or p[0][1] == p[1][1]]
 
 def get_dir(a, b):
     if a == b: return 0
