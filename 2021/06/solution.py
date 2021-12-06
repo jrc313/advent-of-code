@@ -18,10 +18,6 @@ def simulate(school, days):
         tick(school)
     return sum(school)
 
-def count_school(school):
-    print(school)
-    return reduce(sum, school.values())
-
 # Part 1
 def solve1(school):
     return simulate(school, 80)
