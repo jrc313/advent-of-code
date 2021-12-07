@@ -10,9 +10,6 @@ def solve1(input):
     med = int(median(input))
     return sum([abs(i - med) for i in input])
 
-def sum_fuel(input, dest):
-    return sum([get_distance(abs(i - dest)) for i in input])
-
 # Part 2
 def solve2(input):
     input.sort()
