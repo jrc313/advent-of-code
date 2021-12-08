@@ -1,5 +1,11 @@
 import os
 import argparse
+from functools import reduce
+
+known_lengths = {2: 1, 3: 7, 4: 4, 7: 8}
+
+def sort_s(s):
+    return "".join(sorted(s))
 
 def parse_input(input):
     return [l.replace(" | ", " ").split(" ") for l in input]
@@ -7,11 +13,23 @@ def parse_input(input):
 def signal_to_bitmask(signal):
     return sum([1 << ord(c) - 97 for c in signal])
 
+def test_signal(bitmask, tests, patterns, default):
+    for num, test in tests:
+        if test(patterns, bitmask): return num
+    return default
+
+def test_signal_list(signal_list, tests, patterns, signal_map, default):
+    for signal in signal_list:
+        bitmask = signal_to_bitmask(signal)
+        num = test_signal(bitmask, tests, patterns, default)
+        patterns[num] = bitmask
+        signal_map[signal] = num
+
 # Part 1
 def solve1(input):
     total = 0
     for d in input:
-        items = [n for n in d[-4:] if len(n) in [2, 3, 4, 7]]
+        items = [n for n in d[-4:] if len(n) in known_lengths.keys()]
         total += len(items)
 
     return total
@@ -24,54 +42,34 @@ def solve2(input):
     for line in input:
         patterns = [0] * 10
         signal_map = {}
-        preamble = ["".join(sorted(signal)) for signal in line[0:-4]]
+        preamble = [sort_s(signal) for signal in line[0:-4]]
         data = line[-4:]
 
-        for signal in [s for s in preamble if len(s) in [2, 3, 4, 7]]:
-            bitmask = signal_to_bitmask(signal)
-            num = 0
-            if len(signal) == 2:
-                num = 1
-            if len(signal) == 3:
-                num = 7
-            if len(signal) == 4:
-                num = 4
-            if len(signal) == 7:
-                num = 8
-            patterns[num] = bitmask
+        for signal in [s for s in preamble if len(s) in known_lengths.keys()]:
+            num = known_lengths[len(signal)]
+            patterns[num] = signal_to_bitmask(signal)
             signal_map[signal] = num
 
         bit13 = patterns[1] ^ patterns[4]
+        bit13_test = lambda _, bitmask: (bit13 & bitmask) == bit13
 
-        for signal in [s for s in preamble if len(s) == 5]:
-            bitmask = signal_to_bitmask(signal)
-            num = 0
-            if patterns[1] & bitmask == patterns[1]:
-                num = 3
-            elif (bit13 & bitmask) == bit13:
-                num = 5
-            else:
-                num = 2
-            patterns[num] = bitmask
-            signal_map[signal] = num
+        five_tests = [
+            (3, lambda patterns, bitmask: patterns[1] & bitmask == patterns[1]),
+            (5, bit13_test)
+        ]
 
-        for signal in [s for s in preamble if len(s) == 6]:
-            bitmask = signal_to_bitmask(signal)
-            if not(patterns[1] & bitmask == patterns[1]):
-                num = 6
-            elif (bit13 & bitmask) == bit13:
-                num = 9
-            else:
-                num = 0
-            patterns[num] = bitmask
-            signal_map[signal] = num
+        six_tests = [
+            (6, lambda patterns, bitmask: not(patterns[1] & bitmask == patterns[1])),
+            (9, bit13_test)
+        ]
 
-        number = int("".join([str(signal_map["".join(sorted(signal))]) for signal in data]))
+        test_signal_list([s for s in preamble if len(s) == 5], five_tests, patterns, signal_map, 2)
+        test_signal_list([s for s in preamble if len(s) == 6], six_tests, patterns, signal_map, 0)
+
+        number = reduce(lambda acc, signal: (10 * acc) + signal_map[sort_s(signal)], data, 0)
         total += number
 
     return total
-
-
 
 
 def get_input(filename):
