@@ -2,14 +2,6 @@ import os
 import argparse
 from functools import reduce
 
-def get_adjacents(data, i, j):
-    a = []
-    if i > 0: a.append(data[i - 1][j])
-    if i + 1 < len(data): a.append(data[i + 1][j])
-    if j > 0: a.append(data[i][j - 1])
-    if j + 1 < len(data[0]): a.append(data[i][j + 1])
-    return a
-
 def get_adjacent_coords(data, test, i, j):
     c = []
     if i > 0 and test(data[i - 1][j]): c.append([i - 1, j])
@@ -28,14 +20,12 @@ def get_low_points(data):
     return low_points
 
 
-seen = []
-def build_basin(data, low_point):
+def build_basin(data, low_point, seen = []):
     seen.append(low_point)
     basin = [low_point]
     for a in get_adjacent_coords(data, lambda a: a < 9, low_point[0], low_point[1]):
         if a not in seen:
-            basin += build_basin(data, a)
-    
+            basin += build_basin(data, a, seen)
     return basin
 
 
@@ -47,21 +37,8 @@ def solve1(input):
 
 # Part 2
 def solve2(input):
-    low_points = get_low_points(input)
-
-    basins = []
-
-    for p in low_points:
-        seen = []
-        basin = build_basin(input, p)
-        basins.append(len(basin))
-
-    answer = reduce(lambda acc, b: b * acc, sorted(basins)[-3:], 1)
-
-
-
-    return answer
-
+    basins = [len(build_basin(input, p)) for p in get_low_points(input)]
+    return reduce(lambda acc, b: b * acc, sorted(basins)[-3:], 1)
 
 
 def get_input(filename):
