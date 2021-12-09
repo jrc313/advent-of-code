@@ -19,7 +19,6 @@ def get_low_points(data):
                 low_points.append([i, j])
     return low_points
 
-
 def build_basin(data, low_point, seen = []):
     seen.append(low_point)
     basin = [low_point]
@@ -31,8 +30,7 @@ def build_basin(data, low_point, seen = []):
 
 # Part 1
 def solve1(input):
-    low_points = get_low_points(input)
-    return reduce(lambda acc, p: acc + input[p[0]][p[1]] + 1, low_points, 0)
+    return reduce(lambda acc, p: acc + input[p[0]][p[1]] + 1, get_low_points(input), 0)
 
 
 # Part 2
