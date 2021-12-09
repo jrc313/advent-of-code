@@ -9,7 +9,9 @@ SOLUTION_FILE="${BASEDIR}/solution.py"
 SESSION=$(<.env)
 INPUT_URL="https://adventofcode.com/${YEAR}/day/${DAY}/input"
 INPUT_FILE="${BASEDIR}/input.txt"
+TEST_FILE="${BASEDIR}/test.txt"
 
 [ ! -d "${BASEDIR}" ] && mkdir "${BASEDIR}"
 [ ! -f "${SOLUTION_FILE}" ] && cp "${DAY_TEMPLATE}" "${SOLUTION_FILE}"
+[ ! -f "${TEST_FILE}" ] && touch "${TEST_FILE}"
 [ ! -f "${INPUT_FILE}" ] && curl -H "Cookie: ${SESSION}" "${INPUT_URL}" --output "${INPUT_FILE}"
