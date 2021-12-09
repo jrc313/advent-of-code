@@ -1,6 +1,6 @@
 import os
 import argparse
-from functools import reduce
+from functools import reduce, lru_cache
 
 def get_adjacent_coords(data, test, i, j):
     c = []
@@ -21,7 +21,7 @@ def get_low_points(data):
 
 def build_basin(data, low_point, seen = []):
     seen.append(low_point)
-    basin = [low_point]
+    basin = 1
     for a in get_adjacent_coords(data, lambda a: a < 9, low_point[0], low_point[1]):
         if a not in seen:
             basin += build_basin(data, a, seen)
@@ -35,7 +35,7 @@ def solve1(input):
 
 # Part 2
 def solve2(input):
-    basins = [len(build_basin(input, p)) for p in get_low_points(input)]
+    basins = [build_basin(input, p) for p in get_low_points(input)]
     return reduce(lambda acc, b: b * acc, sorted(basins)[-3:], 1)
 
 
