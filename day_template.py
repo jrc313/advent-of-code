@@ -12,11 +12,6 @@ def solve2(input):
     # TODO
     return "TODO"
 
-# Testing, testing
-def test():
-    # TODO
-    return "TODO"
-
 
 
 def get_input(filename):
