@@ -8,12 +8,16 @@ pairs = {"(": ")", "[": "]", "{": "}", "<": ">"}
 corrupt_scores = {")": 3, "]": 57, "}": 1197, ">": 25137}
 valid_scores = {"(": 1, "[": 2, "{": 3, "<": 4}
 
-# Part 1
-def solve(input):
-    p1_score = 0
+valid_stacks = []
 
-    valid = []
-    valid_stacks = []
+def get_stack_score(stack):
+    scores = [valid_scores[c] for c in reversed(stack)]
+    return reduce(lambda acc, i: (5 * acc) + i, scores, 0)
+
+# Part 1
+def solve1(input):
+
+    p1_score = 0
 
     for line in input:
         stack = deque()
@@ -22,26 +26,17 @@ def solve(input):
         for c in line:
             if c in pairs.keys(): stack.append(c)
             else:
-                a = pairs[stack.pop()]
-                if not(a == c):
+                if not(c == pairs[stack.pop()]):
                     is_corrupt = True
-                    if first_illegal == "":
-                        first_illegal = c
-                    if c == first_illegal:
-                        p1_score += corrupt_scores[c]
+                    if first_illegal == "": first_illegal = c
+                    if c == first_illegal: p1_score += corrupt_scores[c]
         if not(is_corrupt):
-            valid.append(line)
             valid_stacks.append(stack)
 
-    p2_scores = []
-    for stack in valid_stacks:
-        scores = [valid_scores[c] for c in reversed(stack)]
-        p2_scores.append(reduce(lambda acc, i: (5 * acc) + i, scores, 0))
-    p2_score = median(p2_scores)
-    
-    return {"P1": p1_score, "P2": p2_score}
+    return p1_score
 
-
+def solve2(input):
+    return median([get_stack_score(stack) for stack in valid_stacks])
 
 
 def get_input(filename):
@@ -58,4 +53,5 @@ if args.test:
 
 input = get_input(filename)
 
-print(f"Part 1 and 2: {solve(input)}")
+print(f"Part 1: {solve1(input)}")
+print(f"Part 2: {solve2(input)}")

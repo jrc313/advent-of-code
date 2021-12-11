@@ -1,6 +1,6 @@
 import os
 import argparse
-from functools import reduce, lru_cache
+from functools import reduce
 
 def get_adjacent_coords(data, test, i, j):
     c = []
