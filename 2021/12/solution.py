@@ -34,7 +34,7 @@ class Graph:
         else:
             for b in self.graph[a]:
                 if b not in visited:
-                    self.doSearch(b, target, visited, current_path, allow_two)
+                    self.doSearch(b, target, visited.copy(), current_path.copy(), allow_two)
 
         current_path.remove(a)
         visited.discard(a)
