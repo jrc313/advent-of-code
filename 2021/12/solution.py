@@ -48,31 +48,24 @@ class Graph:
 def count_instances(q, a):
     return len(list(filter(lambda n: a == n, q)))
 
-# Part 1
-def solve1(input):
+def build_graph(input):
     g = Graph()
     for line in input:
-        edge = line.split("-")
-        g.addEdge(edge[0], edge[1])
+        (a, b) = line.split("-")
+        g.addEdge(a, b)
 
+    return g
+
+# Part 1
+def solve1(g):
     total = g.search("start", "end", "")
     return total
 
 # Part 2
-def solve2(input):
-    g = Graph()
-    for line in input:
-        edge = line.split("-")
-        g.addEdge(edge[0], edge[1])
-
-    original_total = g.search("start", "end", "")
-    total = original_total
-    for a in g.little_caves:
-        count = g.search("start", "end", a)
-        total += count - original_total
-
-    return total
-
+def solve2(g):
+    original_total = g.path_count
+    return reduce(lambda acc, i: acc + (i - original_total),
+        [g.search("start", "end", a) for a in g.little_caves], original_total)
 
 
 def get_input(filename):
@@ -88,6 +81,7 @@ if args.test:
     filename = "test.txt"
 
 input = get_input(filename)
+g = build_graph(input)
 
-print(f"Part 1: {solve1(input)}")
-print(f"Part 2: {solve2(input)}")
+print(f"Part 1: {solve1(g)}")
+print(f"Part 2: {solve2(g)}")
