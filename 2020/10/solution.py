@@ -2,8 +2,6 @@ from collections import defaultdict
 import os
 import argparse
 from collections import defaultdict
-from functools import reduce
-
 
 # Part 1
 def solve1(input):
