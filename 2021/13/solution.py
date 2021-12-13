@@ -19,38 +19,27 @@ def get_grid_and_instructions(input):
     return grid, instructions
 
 def print_grid(grid):
-    mx = 0
-    my = 0
-
-    for x, y in grid:
-        if x > mx: mx = x
-        if y > my: my = y
-
-    for y in range(0, my + 1):
-        for x in range(0, mx + 1):
-            if (x, y) in grid:
-                print("#", end = "")
-            else:
-                print(" ", end = "")
+    max_xy = list(map(max, zip(*grid)))
+    for y in range(0, max_xy[1] + 1):
+        for x in range(0, max_xy[0] + 1):
+            if (x, y) in grid: print("😎", end = "")
+            else: print("⬜️", end = "")
         print("")
 
-def fold_point(p, n):
-    if p < n: return p
-    return (2 * n) - p
+def fold_point(p, f_point):
+    if p < f_point: return p
+    return (2 * f_point) - p
 
-def fold_grid(grid, fold_instruction):
+def get_folder(axis, f_point):
+    if axis == "x":
+        return lambda x, y: (fold_point(x, f_point), y)
+    return lambda x, y: (x, fold_point(y, f_point))
 
-    axis, n = fold_instruction
-
+def fold_grid(grid, instruction):
+    folder = get_folder(*instruction)
     new_grid = set()
     for (x, y) in grid:
-        new_p = (0, 0)
-        if axis == "x":
-            new_p = (fold_point(x, n), y)
-        else:
-            new_p = (x, fold_point(y, n))
-
-        new_grid.add(new_p)
+        new_grid.add(folder(x, y))
 
     return new_grid
 
