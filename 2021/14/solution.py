@@ -1,24 +1,20 @@
 import os
 import argparse
 from collections import defaultdict
-from operator import itemgetter
 
 def get_polymer_data(input):
     template = input[0]
     polymer_map = {}
     for line in input[2:]:
         l = line.split(" -> ")
-        pair = l[0]
-        insert = l[1]
-        polymer_map[pair] = insert
+        polymer_map[l[0]] = l[1]
 
     return template, polymer_map
 
 def to_pairs(template):
-    pairs = {}
-    for i in range(1, len(template)):
-        pair = template[i - 1] + template[i]
-        pairs[pair] = pairs.get(pair, 0) + 1
+    pairs = defaultdict(int)
+    for i, c in enumerate(template[1:]):
+        pairs[template[i] + c] += 1
     
     return pairs
 
@@ -30,11 +26,11 @@ def get_frequency(s):
 
 def polymerise(pairs, freqs, polymer_map):
     new_pairs = defaultdict(int)
-    for pair in pairs:
+    for pair, count in pairs.items():
         insert = polymer_map[pair]
-        new_pairs[pair[0] + insert] += pairs[pair]
-        new_pairs[insert + pair[1]] += pairs[pair]
-        freqs[insert] += pairs[pair]
+        new_pairs[pair[0] + insert] += count
+        new_pairs[insert + pair[1]] += count
+        freqs[insert] += count
 
     return new_pairs, freqs
 
@@ -44,10 +40,8 @@ def polymerise_times(template, polymer_map, times):
     for _ in range(0, times):
         pairs, freqs = polymerise(pairs, freqs, polymer_map)
 
-    max_char = max(freqs.items(), key=itemgetter(1))
-    min_char = min(freqs.items(), key=itemgetter(1))
-
-    return max_char[1] - min_char[1]
+    sorted_freqs = sorted(freqs.values())
+    return sorted_freqs[-1] - sorted_freqs[0]
 
 # Part 1
 def solve1(template, polymer_map):
