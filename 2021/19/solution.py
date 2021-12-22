@@ -26,8 +26,8 @@ def timer(func):
         s_time = perf_counter()
         result = func(*args, **kwargs)
         e_time = perf_counter()
-        r_time = e_time - s_time
-        print(f"func {func.__name__!r} ran in {r_time:.5f}s")
+        r_time = (e_time - s_time) * 1000
+        print(f"func {func.__name__!r} ran in {r_time:.3f}ms")
         return result
     return wrapper_timer
 

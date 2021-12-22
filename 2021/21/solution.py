@@ -74,8 +74,6 @@ def solve1(input):
         rolls += 3
         player = not player
 
-    print(f"{rolls}: {score[0], score[1]}")
-
     return rolls * score[player]
 
 # Part 2
@@ -84,7 +82,7 @@ def solve2(input):
     calculate_roll_universes(3)
     pos = get_start_pos(input)
     wins = roll_quantum(tuple(pos))
-    return wins
+    return max(wins)
 
 
 
