@@ -75,8 +75,6 @@ def get_components(input):
 # Part 1
 @timer
 def solve1(input):
-
-
     stack = []
     counter = 0
 
