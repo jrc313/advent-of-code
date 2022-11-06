@@ -19,8 +19,8 @@
     (if (and (not (empty? lst)) (> num 0)) (cons (car lst) (get-n-items (cdr lst) (- num 1)))
         '()))
 
-(define (sum-seq-of num lst)
-    (if (>= (length lst) num) (cons (apply + (get-n-items lst num)) (sum-seq-of num (rest lst)))
+(define (sum-n-items lst num)
+    (if (>= (length lst) num) (cons (apply + (get-n-items lst num)) (sum-n-items (rest lst) num))
         '()))
 
 (define (count-increases lst [increases 0])
@@ -32,7 +32,7 @@
     (count-increases aoc-input))
 
 (define (part2 aoc-input)
-    (count-increases (sum-seq-of 3 aoc-input)))
+    (count-increases (sum-n-items aoc-input 3)))
 
 (let ([aoc-input (parse-aoc-input (if (test-mode) "test.txt" "input.txt"))])
     (time (printf "Part1: ~a\n" (part1 aoc-input)))
