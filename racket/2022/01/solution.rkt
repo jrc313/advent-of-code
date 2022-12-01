@@ -17,9 +17,9 @@
 
 
 (define (get-largest-n items new-item size)
-    (let ([new-items (sort (cons new-item items) <)])
+    (let ([new-items (sort (cons new-item items) >)])
         (if (<= (length new-items) size) new-items
-        (cdr new-items))))
+        (take new-items size))))
 
 
 (define (get-largest inventory [size 1] [current-total 0] [largest '(0)])
