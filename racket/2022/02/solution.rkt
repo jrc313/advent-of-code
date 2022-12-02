@@ -40,9 +40,6 @@
         [(equal? result 'win) (hash-ref defeat-hash opponent)]
         [else (hash-ref win-hash opponent)]))
 
-(define (view-strategy moves)
-    (map (λ (move) (cons move (cons (move-score move) (hash-ref result-score-hash (move-score move))))) moves))
-
 (define (run-part1-strategy moves)
     (foldl (λ (move score)
         (+ score (hash-ref result-score-hash (move-score move)) (hash-ref shape-score-hash (cadr move)))
