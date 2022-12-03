@@ -23,5 +23,8 @@
     0)
 
 (let ([aoc-input (parse-aoc-input (if (test-mode) "test.txt" "input.txt"))])
-    (time (printf "Part1: ~a\n" (part1 aoc-input)))
-    (time (printf "Part2: ~a\n" (part2 aoc-input))))
+    (printf "\n")
+    (time (printf "🎄 Part 1: ~a\n" (part1 aoc-input)))
+    (printf "\n")
+    (time (printf "🎄 Part 2: ~a\n" (part2 aoc-input)))
+    (printf "\n"))
