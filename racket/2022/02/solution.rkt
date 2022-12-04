@@ -58,6 +58,12 @@
 (define (part2 aoc-input)
     (run-part2-strategy (input->moves aoc-input input-hash-part2)))
 
-(let ([aoc-input (parse-aoc-input (if (test-mode) "test.txt" "input.txt"))])
-    (time (printf "Part1: ~a\n" (part1 aoc-input)))
-    (time (printf "Part2: ~a\n" (part2 aoc-input))))
+(define (run-part n proc)
+    (define-values (result cpu real gc) (time-apply proc '()))
+    (printf "⭐️ Part ~a ~ams: ~a\n" n cpu (car result))
+    cpu)
+
+(define aoc-input (parse-aoc-input (if (test-mode) "test.txt" "input.txt")))
+(define times (list (run-part 1 (λ () (part1 aoc-input))) (run-part 2 (λ () (part2 aoc-input)))))
+
+(printf "⏱  Total time: ~ams\n" (apply + times))
