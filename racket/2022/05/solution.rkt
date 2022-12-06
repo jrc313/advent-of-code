@@ -19,7 +19,7 @@
 (struct instruction (amt from to))
 
 (define (parse-rearrangement-procedure input)
-    (let-values ([(stacks instructions) (splitf-at input (λ (item) (not (equal? item ""))))])
+    (let-values ([(stacks instructions) (splitf-at input (λ (item) (non-empty-string? (string-trim item))))])
         (crane (parse-stacks (take stacks (- (length stacks) 1))) (parse-instructions (cdr instructions)))))
     
 (define (parse-stacks stacks)
