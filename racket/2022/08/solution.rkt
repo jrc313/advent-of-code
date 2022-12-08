@@ -21,15 +21,15 @@
 (define (input->matrix input)
     (map
         (λ (line)
-            (map (λ (item) (char->integer item))
+            (map (λ (item) (- (char->integer item) 48))
             (string->list line)))
         input))
 
 (define (visible-in-row row [visible (list)] [tallest 0])
-    (if (empty? row) visible
-        (if (> (first row) tallest)
-            (visible-in-row (rest row) (append visible '(#t)) (first row))
-            (visible-in-row (rest row) (append visible '(#f)) tallest))))
+    (cond [(empty? row) visible]
+          [(= tallest 9) (append visible (make-list (length row) #f))]
+          [(> (first row) tallest) (visible-in-row (rest row) (append visible '(#t)) (first row))]
+          [(visible-in-row (rest row) (append visible '(#f)) tallest)]))
 
 (define (view-score-from-point tree-h view)
     (if (empty? view) 0
