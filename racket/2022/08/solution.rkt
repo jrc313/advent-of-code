@@ -12,8 +12,6 @@
     
     #:args () (void)))
 
-(define (parse-aoc-input path)
-    (file->lines path))
 
 (define (transpose lst)
   (apply map list lst))
@@ -68,18 +66,33 @@
         (if (> tree tallest) tree tallest))
         0 (process-forest forest view-scores-in-row *)))
 
-(define (part1 aoc-input)
-    (tall-trees-in-forest (input->matrix aoc-input)))
+(define (input-parser input)
+    (input->matrix input))
 
-(define (part2 aoc-input)
-    (best-view-in-forest (input->matrix aoc-input)))
+(define (part1 input)
+    (tall-trees-in-forest input))
 
-(define (run-part n proc)
-    (define-values (result cpu real gc) (time-apply proc '()))
+(define (part2 input)
+    (best-view-in-forest input))
+
+
+(define (load-input path)
+    (file->lines path))
+
+(define (parse-input input-parser input)
+    (define-values (result cpu real gc) (time-apply input-parser (list input)))
+    (printf "🛠  Parse input: ~ams\n" cpu)
+    (values (car result) cpu))
+
+(define (run-part n proc input)
+    (define-values (result cpu real gc) (time-apply proc (list input)))
     (printf "⭐️ Part ~a ~ams: ~a\n" n cpu (car result))
     cpu)
 
-(define aoc-input (parse-aoc-input (if (test-mode) "test.txt" "input.txt")))
-(define times (list (run-part 1 (λ () (part1 aoc-input))) (run-part 2 (λ () (part2 aoc-input)))))
+(define input (load-input (if (test-mode) "test.txt" "input.txt")))
+(define-values (parsed-input parse-time) (parse-input input-parser input))
+(define part-times
+    (list (run-part 1 part1 parsed-input)
+          (run-part 2 part2 parsed-input)))
 
-(printf "⏱  Total time: ~ams\n" (apply + times))
+(printf "⏱  Total time: ~ams\n" (+ parse-time (apply + part-times)))
