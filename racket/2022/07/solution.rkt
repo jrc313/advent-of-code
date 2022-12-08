@@ -40,8 +40,7 @@
     (let ([paths (hash-keys fs)])
         (foldl (λ (path fs)
             (foldl
-                (λ (key fs)
-                    (hash-set fs path (+ (hash-ref fs key) (hash-ref fs path))))
+                (λ (key fs) (hash-set fs path (+ (hash-ref fs key) (hash-ref fs path))))
                 fs
                 (filter (λ (item) (and (string-prefix? item path)
                                        (not (string=? item path)))) paths)))
