@@ -3,15 +3,9 @@
 (define test-mode (make-parameter #f))
 
 (define parser
- (command-line
-    #:usage-help
-    "Run the AOC script"
-    
-    #:once-each
-    [("-t" "--test") "Run in test mode" (test-mode #t)]
-    
-    #:args () (void)))
-
+    (command-line #:usage-help "Run the AOC script"
+                  #:once-each [("-t" "--test") "Run in test mode" (test-mode #t)]
+                  #:args () (void)))
 
 (define (transpose lst)
   (apply map list lst))
@@ -81,7 +75,8 @@
 
 (define (parse-input input-parser input)
     (define-values (result cpu real gc) (time-apply input-parser (list input)))
-    (printf "🛠  Parse input: ~ams\n" cpu)
+    (printf "🧹 Parse input: ~ams\n" cpu)
+    (when (test-mode) (pretty-display (car result)))
     (values (car result) cpu))
 
 (define (run-part n proc input)
@@ -89,10 +84,11 @@
     (printf "⭐️ Part ~a ~ams: ~a\n" n cpu (car result))
     cpu)
 
-(define input (load-input (if (test-mode) "test.txt" "input.txt")))
-(define-values (parsed-input parse-time) (parse-input input-parser input))
+(define raw-input (load-input (if (test-mode) "test.txt" "input.txt")))
+(define-values (parsed-input parse-time) (parse-input input-parser raw-input))
 (define part-times
     (list (run-part 1 part1 parsed-input)
           (run-part 2 part2 parsed-input)))
 
-(printf "⏱  Total time: ~ams\n" (+ parse-time (apply + part-times)))
+(printf "\n")
+(printf "⌛️ Total time: ~ams\n" (+ parse-time (apply + part-times)))
