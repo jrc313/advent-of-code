@@ -10,10 +10,10 @@
 (define (input-parser input)
     input)
 
-(define (part1 aoc-input)
+(define (part1 input)
     0)
 
-(define (part2 aoc-input)
+(define (part2 input)
     0)
 
 
@@ -23,7 +23,6 @@
 (define (parse-input input-parser input)
     (define-values (result cpu real gc) (time-apply input-parser (list input)))
     (printf "🧹 Parse input: ~ams\n" cpu)
-    (when (test-mode) (pretty-display (car result)))
     (values (car result) cpu))
 
 (define (run-part n proc input)
