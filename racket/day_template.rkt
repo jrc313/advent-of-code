@@ -2,10 +2,9 @@
 
 (define test-mode (make-parameter #f))
 
-(define parser
-    (command-line #:usage-help "Run the AOC script"
-                  #:once-each [("-t" "--test") "Run in test mode" (test-mode #t)]
-                  #:args () (void)))
+(command-line #:usage-help "Run the AOC script"
+              #:once-each [("-t" "--test") "Run in test mode" (test-mode #t)]
+              #:args () (void))
 
 (define (input-parser input)
     input)
