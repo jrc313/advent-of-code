@@ -1,68 +1,81 @@
 #lang racket
-
-(define test-mode (make-parameter #t))
-
+ 
+(define test-mode (make-parameter #f))
+ 
 (command-line #:usage-help "Run the AOC script"
               #:once-each [("-t" "--test") "Run in test mode" (test-mode #t)]
               #:args () (void))
-
-
+ 
+(define (string-replace-many s froms tos)
+    (if (empty? froms) s
+        (string-replace-many (string-replace s (car froms) (car tos)) (cdr froms) (cdr tos))))
+ 
 (define (read-list s)
     (read (open-input-string
-        (string-replace
-            (string-replace
-                (string-replace s "[" "(")
-                "]" ")")
-            "," " "))))
-
+        (string-replace-many s '("[" "]" ",")
+                               '("(" ")" " ")))))
+ 
 (define (input-parser input)
     (map (λ (i)
         (list (read-list (list-ref input i))
               (read-list (list-ref input (+ i 1)))))
         (range 0 (length input) 3)))
 
-(define (compare-pairs p1 p2)
-    ;(printf "Comparing ~a -> ~a\n" p1 p2)
-    (cond [(and (empty? p1) (not (empty? p2))) #t]
-          [(empty? p2) #f]
-          [(or (list? p1) (list? p2))
-            (compare-pairs (if (list? p1) (car p1) p1)
-                           (if (list? p2) (car p2) p2))]
-          
-          [(< (car p1) (car p2)) #t]
-          [(> (car p1) (car p2)) #f]
-          [else (compare-pairs (cdr p1) (cdr p2))]))
+(define (list< l1 l2)
+    (let ([cmp (for/or ([a l1] [b l2]
+                        #:when (or (list? a) (list? b) (not (= a b))))
+                    (cond [(or (list? a) (list? b))
+                           (list< (if (list? a) a (cons a '()))
+                           (if (list? b) b (cons b '())))]
+                          [(< a b) 1]
+                          [(> a b) -1]
+                          [else #f]))]
+        )
+        (cond [(not (boolean? cmp)) cmp]
+              [(= (length l1) (length l2)) #f]
+              [(< (length l1) (length l2)) 1]
+              [else -1])))
+
 
 (define (part1 input)
     (foldl (λ (i total)
         (let* ([pair (list-ref input i)]
                [p1 (car pair)] [p2 (cadr pair)]
-               [in-order (compare-pairs p1 p2)])
-            (if in-order (+ total i 1) total)))
+               [in-order (list< p1 p2)])
+            (if (= in-order 1) (+ total i 1) total)))
         0 (range (length input))))
-
+ 
 (define (part2 input)
-    0)
-
+    (let*
+        ([d1 (list (list 2))]
+         [d2 (list (list 6))]
+         [packets (foldl (λ (packet packet-list) (append packet-list (list (car packet) (cadr packet))))
+                    (list (list (list 2)) (list (list 6))) input)]
+         [sorted-packets (list->vector(sort packets (λ (a b) (= (list< a b) 1))))]
+         [d1-pos (+ 1 (vector-member d1 sorted-packets))]
+         [d2-pos (+ 1 (vector-member d2 sorted-packets))])
+            (* d1-pos d2-pos)))
+    
+ 
 
 (define (load-input path)
     (file->lines path))
-
+ 
 (define (parse-input input-parser input)
     (define-values (result cpu real gc) (time-apply input-parser (list input)))
     (printf "🧹 Parse input: ~ams\n" cpu)
     (values (car result) cpu))
-
+ 
 (define (run-part n proc input)
     (define-values (result cpu real gc) (time-apply proc (list input)))
     (printf "⭐️ Part ~a ~ams: ~a\n" n cpu (car result))
     cpu)
-
+ 
 (define raw-input (load-input (if (test-mode) "test.txt" "input.txt")))
 (define-values (parsed-input parse-time) (parse-input input-parser raw-input))
 (define part-times
     (list (run-part 1 part1 parsed-input)
           (run-part 2 part2 parsed-input)))
-
+ 
 (printf "\n")
 (printf "⌛️ Total time: ~ams\n" (+ parse-time (apply + part-times)))
