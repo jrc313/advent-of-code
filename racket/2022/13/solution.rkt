@@ -1,5 +1,7 @@
 #lang racket
- 
+
+(require json)
+
 (define test-mode (make-parameter #f))
  
 (command-line #:usage-help "Run the AOC script"
@@ -10,15 +12,13 @@
     (if (empty? froms) s
         (string-replace-many (string-replace s (car froms) (car tos)) (cdr froms) (cdr tos))))
  
-(define (read-list s)
-    (read (open-input-string
-        (string-replace-many s '("[" "]" ",")
-                               '("(" ")" " ")))))
+(define (line->list s)
+    (read-json (open-input-string s)))
  
 (define (input-parser input)
     (map (λ (i)
-        (list (read-list (list-ref input i))
-              (read-list (list-ref input (+ i 1)))))
+        (list (line->list (list-ref input i))
+              (line->list (list-ref input (+ i 1)))))
         (range 0 (length input) 3)))
 
 (define (list< l1 l2)
