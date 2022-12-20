@@ -92,30 +92,36 @@
                 [cell row])
         (if (= cell v) (+ total 1) total)))
 
-(define (print-vectrix vec [highlight-pos (point 0 0)] [highlight-val -1])
+(define (display-with-highlight display-proc vec highlight-pos)
     (let ([temp-val (vectrix-ref vec highlight-pos)])
-        (when (> highlight-val -1) (vectrix-set! vec highlight-pos highlight-val))
-        (for ([row vec])
-            (for ([cell row])
-                (display (vector-ref cave-print-chars cell)))
-            (display "\n"))
-        (when (> highlight-val -1) (vectrix-set! vec highlight-pos temp-val))))
+        (vectrix-set! vec highlight-pos highlight)
+        (let ([displayed (display-proc vec)])
+            (vectrix-set! vec highlight-pos temp-val)
+            displayed)))
+
+(define (print-vectrix vec [highlight-pos (point 0 0)] [highlight-val -1])
+    (for ([row vec])
+        (for ([cell row])
+            (display (vector-ref cave-print-chars cell)))
+        (display "\n")))
 
 (define (vectrix->image vec)
     (define square-size 2)
-    (define cell-colours (vector "Medium Gray" "Medium Brown" "Light Orange"))
+    (define cell-colours (vector "Medium Gray" "Medium Brown" "Light Orange" "Medium Orange"))
     (define (cell-square cell-value)
         (square square-size "solid" (vector-ref cell-colours cell-value)))
 
     (define (row->image row)
         (apply beside (for/list ([cell row]) (cell-square cell))))
 
-    (apply above (for/list ([row vec]) (row->image row))))
+    (freeze
+        (apply above (for/list ([row vec]) (row->image row)))))
 
 (define (paths->points paths)
     (flatten (for/list ([path paths]) (expand-path path))))
 
-(define (run-sand-through-vectrix pos vec [xmax (- (vector-length (vector-ref vec 0)) 1)]
+(define (run-sand-through-vectrix pos vec [generate-frames #f] [frame-handler null]
+                                          [xmax (- (vector-length (vector-ref vec 0)) 1)]
                                           [ymax (- (vector-length vec) 1)])
     (let* ([x (point-x pos)]
            [y (point-y pos)]
@@ -124,19 +130,27 @@
             (let ([below (if (< y ymax) (vectrix-ref vec (point+ pos (point 0 1))) space)]
                   [left (if (> x 0) (vectrix-ref vec (point+ pos (point -1 1))) space)]
                   [right (if (< x xmax) (vectrix-ref vec (point+ pos (point 1 1))) space)])
+                (when generate-frames (frame-handler (display-with-highlight vectrix->image vec pos)))
                 (cond
                     [(= below space)
-                        (run-sand-through-vectrix (point+ pos (point 0 1)) vec xmax ymax)]
+                        (run-sand-through-vectrix (point+ pos (point 0 1)) vec
+                                                  generate-frames frame-handler
+                                                  xmax ymax)]
                     [(= left space)
-                        (run-sand-through-vectrix (point+ pos (point -1 1)) vec xmax ymax)]
+                        (run-sand-through-vectrix (point+ pos (point -1 1)) vec
+                                                  generate-frames frame-handler
+                                                  xmax ymax)]
                     [(= right space)
-                        (run-sand-through-vectrix (point+ pos (point 1 1)) vec xmax ymax)]
+                        (run-sand-through-vectrix (point+ pos (point 1 1)) vec
+                                                  generate-frames frame-handler
+                                                  xmax ymax)]
                     [else (vectrix-set! vec pos sand)
                           #t])))))
 
-(define (simulate-sand the-cave [total-sand 0])
+(define (simulate-sand the-cave [generate-frames #f] [frame-handler null] [total-sand 0])
+    (when generate-frames (frame-handler (vectrix->image (cave-vectrix the-cave))))
     (if (run-sand-through-vectrix (point (cave-pour-col the-cave) 0) (cave-vectrix the-cave))
-        (simulate-sand the-cave (+ total-sand 1))
+        (simulate-sand the-cave generate-frames frame-handler (+ total-sand 1))
         total-sand))
 
 
@@ -160,10 +174,18 @@
         (for/list ([point-string (string-split line " -> ")])
             (string->point point-string))))
 
+(define (make-frame-handler output-prefix)
+    (let ([frame-number 0])
+        (λ (image)
+            (set! frame-number (+ 1 frame-number))
+            (let ([frame-number-lz (~a frame-number #:min-width 5 #:left-pad-string "0" #:align 'right)])
+                (save-image image (string-append "frames/" output-prefix "-" frame-number-lz ".png" ))))))
+
 (define (part1 input)
     (let* ([the-cave (build-cave input)]
            [sand-count (simulate-sand the-cave)])
-        (save-image (vectrix->image (cave-vectrix the-cave)) "part1.png")
+           ;[sand-count (simulate-sand the-cave #t (make-frame-handler "part1"))])
+        ;(save-image (vectrix->image (cave-vectrix the-cave)) "part1.png")
         sand-count))
 
 (define (add-floor-to-input input ymax)
@@ -177,7 +199,7 @@
         (let* ([input-with-floor (add-floor-to-input input (point-y bound-max))]
                [the-cave (build-cave input-with-floor)]
                [sand-count (simulate-sand the-cave)])
-            (save-image (vectrix->image (cave-vectrix the-cave)) "part2.png")
+            ;(save-image (vectrix->image (cave-vectrix the-cave)) "part2.png")
             sand-count)))
 
 
