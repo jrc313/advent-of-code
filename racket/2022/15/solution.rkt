@@ -53,7 +53,7 @@
 (define (sensor-list-range-at-row sl row [clamp #f])
     (for/fold ([ranges '()]) ([s sl])
         (let* ([sensor-range (sensor-range-at-row s row)]
-               [clamped-range (if clamp (clamp-range clamp sensor-range) sensor-range)])
+               [clamped-range (if (and sensor-range clamp) (clamp-range clamp sensor-range) sensor-range)])
             (if clamped-range (cons clamped-range ranges) ranges))))
 
 (define (clamp-range clamp r)
@@ -77,8 +77,8 @@
               ([r ranges])
         (+ total (- (cdr r) (car r)) 1)))
 
-(define (range-gap-at-row sensors row)
-    (let ([ranges (fold-ranges (sensor-list-range-at-row sensors row))])
+(define (range-gap-at-row sensors row clamp)
+    (let ([ranges (fold-ranges (sensor-list-range-at-row sensors row clamp))])
         (if (> (length ranges) 1) (- (car (car ranges)) 1) #f)))
 
 (define (input-parser input)
@@ -94,7 +94,7 @@
     (let* ([bound (if (test-mode) 20 4000000)]
            [clamp (cons 0 bound)])
         (for/or ([i (in-range (+ 1 bound))])
-            (let ([gap (range-gap-at-row input i)])
+            (let ([gap (range-gap-at-row input i clamp)])
                 (if gap (+ i (* gap 4000000)) #f)))))
 
 (define (load-input path)
