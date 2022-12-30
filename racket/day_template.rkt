@@ -1,9 +1,10 @@
 #lang racket
 
-(define test-mode (make-parameter #f))
+(define test-mode (make-parameter #t))
 
 (command-line #:usage-help "Run the AOC script"
               #:once-each [("-t" "--test") "Run in test mode" (test-mode #t)]
+              [("-p" "--puzzle") "Run in puzzle mode" (test-mode #f)]
               #:args () (void))
 
 (define (input-parser input)
