@@ -165,14 +165,16 @@
   (= (set-count path-intersect) 0))
 
 (define (best-two-distinct lst)
-  (for*/fold ([max-pressure 0]
-              [max-path-a '()]
-              [max-path-b '()])
+  (for*/fold ([max-pressure 0] [max-path-a '()] [max-path-b '()])
              ([a lst]
               [b lst]
-              #:do [(define p (+ (tested-path-pressure a) (tested-path-pressure b)))]
-              #:when (and (> p max-pressure) (distinct-sets? (tested-path-keys a) (tested-path-keys b))))
-    (cond [(> p max-pressure) (values p (tested-path-path a) (tested-path-path b))]
+              #:do [(define next-pressure (+ (tested-path-pressure a)
+                                             (tested-path-pressure b)))]
+              #:when (and (> next-pressure max-pressure)
+                          (distinct-sets? (tested-path-keys a)
+                                          (tested-path-keys b))))
+    (cond [(> next-pressure max-pressure)
+           (values next-pressure (tested-path-path a) (tested-path-path b))]
           [else (values max-pressure max-path-a max-path-b)])))
 
 (define (optimal-path-in-max-minutes cave [start "AA"] [max-minutes 30] [find-two? #f])
@@ -208,17 +210,25 @@
 
   (navigate-cave start)
 
-  (write-to-file "part1.dot" (print-tunnel-graph-with-path tunnel-graph valve-hash max-pressure-path))
-
   (cond [find-two?
+         (define half-valve-count (ceiling (/ valve-count 2)))
+         (define paths-of-appropriate-length
+           (for/list ([path tested-paths]
+                      #:do [(define path-length (length (tested-path-path path)))]
+                      #:when (and (<= path-length half-valve-count)
+                                  (>= path-length (- half-valve-count 1))))
+             path))
          (define sorted-paths
-           (sort tested-paths (λ (a b) (>
-                                        (tested-path-pressure a)
-                                        (tested-path-pressure b)))))
+           (sort paths-of-appropriate-length
+                 (λ (a b) (>
+                           (tested-path-pressure a)
+                           (tested-path-pressure b)))))
          (define-values (pressure best-path-a best-path-b) (best-two-distinct sorted-paths))
          (write-to-file "part2.dot" (print-tunnel-graph-with-path tunnel-graph valve-hash best-path-a best-path-b))
          pressure]
-        [else max-pressure]))
+        [else
+         (write-to-file "part1.dot" (print-tunnel-graph-with-path tunnel-graph valve-hash max-pressure-path))
+         max-pressure]))
 
 
 (define (part1 the-cave)
@@ -226,7 +236,6 @@
 
 (define (part2 the-cave)
   (optimal-path-in-max-minutes the-cave "AA" 26 #t))
-
 
 (define (load-input path)
   (file->lines path))
