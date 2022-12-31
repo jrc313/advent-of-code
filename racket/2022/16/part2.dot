@@ -15,19 +15,19 @@ digraph G {
 	node13 [label="KI : 14",fillcolor="cornflowerblue",color="cornflowerblue",fontcolor="white",style="filled"];
 	subgraph U {
 		edge [dir=none];
-		node0 -> node5 [color="coral",label="3"];
-		node0 -> node2 [color="coral",label="5"];
-		node1 -> node6 [color="cornflowerblue",label="4"];
-		node1 -> node9 [color="cornflowerblue",label="3"];
-		node2 -> node11 [color="coral",label="3"];
-		node3 -> node8 [color="coral",label="4"];
-		node4 -> node7 [color="cornflowerblue",label="3"];
-		node5 -> node8 [color="coral",label="6"];
-		node6 -> node13 [color="cornflowerblue",label="3"];
-		node7 -> node10 [color="cornflowerblue",label="5"];
-		node9 -> node12 [color="cornflowerblue",label="4"];
-		node10 -> node13 [color="cornflowerblue",label="3"];
-		node11 -> node12 [color="coral",label="3"];
+		node0 -> node5 [color="coral",style="",label="3"];
+		node0 -> node2 [color="coral",style="",label="5"];
+		node1 -> node6 [color="cornflowerblue",style="",label="4"];
+		node1 -> node9 [color="cornflowerblue",style="",label="3"];
+		node2 -> node11 [color="coral",style="",label="3"];
+		node3 -> node8 [color="coral",style="",label="4"];
+		node4 -> node7 [color="cornflowerblue",style="",label="3"];
+		node5 -> node8 [color="coral",style="",label="6"];
+		node6 -> node13 [color="cornflowerblue",style="",label="3"];
+		node7 -> node10 [color="cornflowerblue",style="",label="5"];
+		node9 -> node12 [color="cornflowerblue",style="",label="4"];
+		node10 -> node13 [color="cornflowerblue",style="",label="3"];
+		node11 -> node12 [color="coral",style="",label="3"];
 	}
 	subgraph D {
 	}

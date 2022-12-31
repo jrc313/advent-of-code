@@ -5,10 +5,15 @@
 (require memo)
 
 (define test-mode (make-parameter #t))
+(define full-graph (make-parameter #f))
+(define hide-unused-paths (make-parameter #f))
 
 (command-line #:usage-help "Run the AOC script"
-              #:once-each [("-t" "--test") "Run in test mode" (test-mode #t)]
+              #:once-each
+              [("-t" "--test") "Run in test mode" (test-mode #t)]
               [("-p" "--puzzle") "Run in puzzle mode" (test-mode #f)]
+              [("-f" "--fullgraph") "Do not prune unused paths from output graph" (full-graph #t)]
+              [("-i" "--invis") "Make unused paths invisible" (hide-unused-paths #t)]
               #:args () (void))
 
 (struct valve (key flow-rate neighbours)
@@ -45,20 +50,29 @@
             #:vertex-attributes (append (list (list 'label label)) vertex-attrs)
             #:edge-attributes edge-attrs))
 
+(define (edge-in-set? st u v )
+  (or (set-member? st (cons u v))
+      (set-member? st (cons v u))))
+
 (define (print-tunnel-graph-with-path tunnel-graph valve-hash path-a [path-b '()])
   (define path-a-keys (path-keys path-a ""))
   (define path-b-keys (path-keys path-b ""))
   (define path-a-edges (path-item-list->edge-set (reverse path-a)))
   (define path-b-edges (path-item-list->edge-set (reverse path-b)))
+  (define both-path-edges (cond [(empty? path-b) path-a-edges]
+                                [else (set-union path-a-edges path-b-edges)]))
 
-  (define edges (for/list ([vertex-list (get-edges tunnel-graph)]
-                           #:do [(define u (car vertex-list))
-                                 (define v (cadr vertex-list))
-                                 (define edge (cons u v))]
-                           #:when (or (set-member? path-a-edges edge) (set-member? path-b-edges edge)))
-                  (list (edge-weight tunnel-graph u v) u v)))
+  (define g (cond [(full-graph) tunnel-graph]
+                  [else
+                   (define pruned-edges (for/list ([vertex-list (get-edges tunnel-graph)]
+                                                   #:do [(define u (car vertex-list))
+                                                         (define v (cadr vertex-list))
+                                                         (define edge (cons u v))]
+                                                   #:when (or (set-member? path-a-edges edge)
+                                                              (set-member? path-b-edges edge)))
+                                          (list (edge-weight tunnel-graph u v) u v)))
+                   (weighted-graph/undirected pruned-edges)]))
 
-  (define g (weighted-graph/undirected edges))
 
   (define-vertex-property
     g valve-fill-colour
@@ -73,19 +87,21 @@
   (define-vertex-property g valve-style #:init "filled")
   (define-edge-property
     g path-colour
-    #:init (cond [(or (set-member? path-a-edges (cons $from $to))
-                      (set-member? path-a-edges (cons $to $from)))
-                  "coral"]
-                 [(or (set-member? path-b-edges (cons $from $to))
-                      (set-member? path-b-edges (cons $to $from)))
-                  "cornflowerblue"]
+    #:init (cond [(edge-in-set? path-a-edges $from $to) "coral"]
+                 [(edge-in-set? path-b-edges $from $to) "cornflowerblue"]
                  [else "gainsboro"]))
+  (define-edge-property
+    g path-style
+    #:init (cond [(edge-in-set? both-path-edges $from $to) ""]
+                 [(hide-unused-paths) "invis"]
+                 [else ""]))
 
   (define vertex-attrs (list (list 'fillcolor valve-fill-colour)
                              (list 'color valve-fill-colour)
                              (list 'fontcolor valve-font-colour)
                              (list 'style valve-style)))
-  (define edge-attrs (list (list 'color path-colour)))
+  (define edge-attrs (list (list 'color path-colour)
+                           (list 'style path-style)))
 
   (print-tunnel-graph g valve-hash #:vertex-attrs vertex-attrs #:edge-attrs edge-attrs))
 
