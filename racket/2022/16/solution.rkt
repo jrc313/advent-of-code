@@ -37,9 +37,62 @@
       (lambda (pi) 'pi)
       (lambda (pi) (list (path-item-key pi) (path-item-dist pi) (path-item-flow pi)))))])
 
-(define (print-tunnel-graph g valve-hash)
-  (define-vertex-property g label #:init (string-append $v ":" (number->string (valve-flow-rate (hash-ref valve-hash $v)))))
-  (graphviz g #:vertex-attributes (list (list 'label label))))
+(struct tested-path (pressure keys path))
+
+(define (print-tunnel-graph g valve-hash #:vertex-attrs [vertex-attrs '()] #:edge-attrs [edge-attrs '()])
+  (define-vertex-property g label #:init (string-append $v " : " (number->string (valve-flow-rate (hash-ref valve-hash $v)))))
+  (graphviz g
+            #:vertex-attributes (append (list (list 'label label)) vertex-attrs)
+            #:edge-attributes edge-attrs))
+
+(define (print-tunnel-graph-with-path tunnel-graph valve-hash path-a [path-b '()])
+  (define path-a-keys (path-keys path-a ""))
+  (define path-b-keys (path-keys path-b ""))
+  (define path-a-edges (path-item-list->edge-set (reverse path-a)))
+  (define path-b-edges (path-item-list->edge-set (reverse path-b)))
+
+  (define edges (for/list ([vertex-list (get-edges tunnel-graph)]
+                           #:do [(define u (car vertex-list))
+                                 (define v (cadr vertex-list))
+                                 (define edge (cons u v))]
+                           #:when (or (set-member? path-a-edges edge) (set-member? path-b-edges edge)))
+                  (list (edge-weight tunnel-graph u v) u v)))
+
+  (define g (weighted-graph/undirected edges))
+
+  (define-vertex-property
+    g valve-fill-colour
+    #:init (cond [(set-member? path-a-keys $v) "coral"]
+                 [(set-member? path-b-keys $v) "cornflowerblue"]
+                 [else "gainsboro"]))
+  (define-vertex-property
+    g valve-font-colour
+    #:init (cond [(set-member? path-a-keys $v) "white"]
+                 [(set-member? path-b-keys $v) "white"]
+                 [else "antiquewhite4"]))
+  (define-vertex-property g valve-style #:init "filled")
+  (define-edge-property
+    g path-colour
+    #:init (cond [(or (set-member? path-a-edges (cons $from $to))
+                      (set-member? path-a-edges (cons $to $from)))
+                  "coral"]
+                 [(or (set-member? path-b-edges (cons $from $to))
+                      (set-member? path-b-edges (cons $to $from)))
+                  "cornflowerblue"]
+                 [else "gainsboro"]))
+
+  (define vertex-attrs (list (list 'fillcolor valve-fill-colour)
+                             (list 'color valve-fill-colour)
+                             (list 'fontcolor valve-font-colour)
+                             (list 'style valve-style)))
+  (define edge-attrs (list (list 'color path-colour)))
+
+  (print-tunnel-graph g valve-hash #:vertex-attrs vertex-attrs #:edge-attrs edge-attrs))
+
+(define (write-to-file filename str)
+  (define out (open-output-file filename #:exists 'truncate))
+  (display str out)
+  (close-output-port out))
 
 (define (lines->valve-hash lines)
   (for/hash ([line lines])
@@ -95,6 +148,12 @@
   (for/or ([path-item path])
     (string=? (path-item-key path-item) item)))
 
+(define (path-item-list->edge-set path)
+  (cond [(< (length path) 2) '()]
+        [else (for/set ([a path]
+                        [b (cdr path)])
+                (cons (path-item-key a) (path-item-key b)))]))
+
 (define (path-keys path [exclude-key "AA"])
   (for/set ([p path]
             #:do [(define k (path-item-key p))]
@@ -106,12 +165,15 @@
   (= (set-count path-intersect) 0))
 
 (define (best-two-distinct lst)
-  (for*/fold ([max-pressure 0])
+  (for*/fold ([max-pressure 0]
+              [max-path-a '()]
+              [max-path-b '()])
              ([a lst]
               [b lst]
-              #:do [(define p (+ (car a) (car b)))]
-              #:when (and (> p max-pressure) (distinct-sets? (cdr a) (cdr b))))
-    (max p max-pressure)))
+              #:do [(define p (+ (tested-path-pressure a) (tested-path-pressure b)))]
+              #:when (and (> p max-pressure) (distinct-sets? (tested-path-keys a) (tested-path-keys b))))
+    (cond [(> p max-pressure) (values p (tested-path-path a) (tested-path-path b))]
+          [else (values max-pressure max-path-a max-path-b)])))
 
 (define (optimal-path-in-max-minutes cave [start "AA"] [max-minutes 30] [find-two? #f])
   (define valve-hash (cave-valve-hash cave))
@@ -133,7 +195,7 @@
     (define pressure (sum-pressure next-path max-minutes))
 
     (when (> (length next-path) 1)
-      (set! tested-paths (cons (cons pressure (path-keys next-path)) tested-paths)))
+      (set! tested-paths (cons (tested-path pressure (path-keys next-path) next-path) tested-paths)))
 
     (when (> pressure max-pressure)
       (set! max-pressure pressure)
@@ -146,9 +208,16 @@
 
   (navigate-cave start)
 
+  (write-to-file "part1.dot" (print-tunnel-graph-with-path tunnel-graph valve-hash max-pressure-path))
+
   (cond [find-two?
-         (define sorted-paths (sort tested-paths (λ (a b) (> (car a) (car b)))))
-         (best-two-distinct sorted-paths)]
+         (define sorted-paths
+           (sort tested-paths (λ (a b) (>
+                                        (tested-path-pressure a)
+                                        (tested-path-pressure b)))))
+         (define-values (pressure best-path-a best-path-b) (best-two-distinct sorted-paths))
+         (write-to-file "part2.dot" (print-tunnel-graph-with-path tunnel-graph valve-hash best-path-a best-path-b))
+         pressure]
         [else max-pressure]))
 
 

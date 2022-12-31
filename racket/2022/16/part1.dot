@@ -1,0 +1,20 @@
+digraph G {
+	node0 [label="FS : 10",fillcolor="coral",color="coral",fontcolor="white",style="filled"];
+	node1 [label="YW : 11",fillcolor="coral",color="coral",fontcolor="white",style="filled"];
+	node2 [label="DS : 21",fillcolor="coral",color="coral",fontcolor="white",style="filled"];
+	node3 [label="HG : 20",fillcolor="coral",color="coral",fontcolor="white",style="filled"];
+	node4 [label="SS : 18",fillcolor="coral",color="coral",fontcolor="white",style="filled"];
+	node5 [label="MD : 12",fillcolor="coral",color="coral",fontcolor="white",style="filled"];
+	node6 [label="AA : 0",fillcolor="coral",color="coral",fontcolor="white",style="filled"];
+	subgraph U {
+		edge [dir=none];
+		node0 -> node4 [color="coral",label="6"];
+		node0 -> node3 [color="coral",label="4"];
+		node1 -> node4 [color="coral",label="3"];
+		node1 -> node2 [color="coral",label="5"];
+		node2 -> node5 [color="coral",label="3"];
+		node5 -> node6 [color="coral",label="3"];
+	}
+	subgraph D {
+	}
+}
