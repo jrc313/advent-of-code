@@ -7,11 +7,31 @@
               [("-p" "--puzzle") "Run in puzzle mode" (test-mode #f)]
               #:args () (void))
 
+(struct point (x y z))
+
+(define (string->point s)
+  (define point-parts (string-split s ","))
+  (list (string->number (car point-parts))
+        (string->number (cadr point-parts))
+        (string->number (caddr point-parts))))
+
 (define (input-parser input)
-  input)
+  (for/list ([line input])
+    (string->point line)))
+
+(define (points-are-neighbours? p1 p2)
+  (= 1 (for/sum ([a p1] [b p2])
+         (abs (- a b)))))
+
+(define (count-open-faces point-list)
+  (for/fold ([open-faces 0])
+            ([p point-list])
+    (+ open-faces (- 6 (for/sum ([p2 point-list]
+                                 #:when (points-are-neighbours? p p2))
+                         1)))))
 
 (define (part1 input)
-  0)
+  (count-open-faces input))
 
 (define (part2 input)
   0)
