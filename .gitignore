@@ -137,7 +137,9 @@ dmypy.json
 scratchfile
 
 # Video output
+frames/
 *.mp4
+*.gif
 
 # Input files
 input.txt
