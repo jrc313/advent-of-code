@@ -74,7 +74,7 @@
             #:when #t
             [aval arow]
             [bval brow])
-    (or (and aval bval) (and (false? aval) (false? bval)))))
+    (equal? aval bval)))
 
 (define (display-chamber chamber)
   (for ([row chamber])
@@ -154,22 +154,31 @@
                         [x (in-range new-pos-x (+ extent-x 1))])
                 (nand cell-value (vectrix-ref chamber (point x y))))]))
 
+(define (chamber-height chamber)
+  (- (vector-length chamber) (empty-rows-at-top-of-chamber chamber)))
 
-(define (simulate-chamber wind-cycle
+(define (simulate-chamber wind-list
                           #:rocks-to-fall [rocks-to-fall 2022]
                           #:chamber-width [chamber-width 7]
                           #:new-rock-offset-x [new-rock-offset-x 2]
-                          #:new-rock-offset-y [new-rock-offset-y 3]
-                          #:progress-update [progress-update 100000])
+                          #:new-rock-offset-y [new-rock-offset-y 3])
 
+  (define total-wind (length wind-list))
+  (define total-rocks (vector-length rock-vector))
   (define rock-count 1)
   (define-values (rock chamber rock-width rock-height rock-pos)
     (add-next-rock 1 null chamber-width new-rock-offset-x new-rock-offset-y))
+  (define rock-wind-hash (make-hash))
+
+  (define cycle-identified? #f)
+  (define calculated-cycle-height 0)
+  (define remainder-rocks +inf.0)
 
   (for ([i (in-naturals)]
-        [wind-dir wind-cycle]
-        #:do [(when (= 0 (modulo i progress-update)) (printf "~a ~a\n" (exact->inexact (/ i rocks-to-fall)) rock-count))]
-        #:break (> rock-count rocks-to-fall))
+        [wind-dir (in-cycle wind-list)]
+        #:do [(define wind-num (modulo i total-wind))
+              (define rock-num (modulo rock-count total-rocks))]
+        #:break (or (<= remainder-rocks 0) (> rock-count rocks-to-fall)))
     (when (rock-can-move? rock rock-pos rock-width rock-height wind-dir chamber)
       (set! rock-pos (point+ rock-pos wind-dir)))
 
@@ -178,14 +187,36 @@
           [else (vectrix+! chamber rock rock-pos)
                 (set! rock-count (+ rock-count 1))
                 (set!-values (rock chamber rock-width rock-height rock-pos)
-                             (add-next-rock rock-count chamber chamber-width new-rock-offset-x new-rock-offset-y))]))
+                             (add-next-rock rock-count chamber chamber-width new-rock-offset-x new-rock-offset-y))
+                (define current-height (chamber-height chamber))
+                #;(when (= rock-count 20) (display-chamber chamber) (display "\n"))
 
-  (- (vector-length chamber) (empty-rows-at-top-of-chamber chamber)))
+                (when cycle-identified?
+                  (set! remainder-rocks (- remainder-rocks 1)))
+
+                (when (and (> i total-wind) (not cycle-identified?))
+                  (define rock-wind-key (cons wind-num rock-num))
+                  (define rock-wind-val (cons (- rock-count 1) current-height))
+
+                  (when (hash-has-key? rock-wind-hash rock-wind-key)
+                    (set! cycle-identified? #t)
+                    (define prev-rock-wind (hash-ref rock-wind-hash rock-wind-key))
+                    (define rocks-in-cycle (- (car rock-wind-val) (car prev-rock-wind)))
+                    (define height-in-cycle (- (cdr rock-wind-val) (cdr prev-rock-wind)))
+                    (define rocks-remaining (- rocks-to-fall (car rock-wind-val)))
+                    (define cycles-remaining (floor (/ rocks-remaining rocks-in-cycle)))
+                    (define rocks-added-in-remaining-cycles (* rocks-in-cycle cycles-remaining))
+                    (set! calculated-cycle-height (* height-in-cycle cycles-remaining))
+                    (set! remainder-rocks (- rocks-remaining rocks-added-in-remaining-cycles)))
+                  
+                  (hash-set! rock-wind-hash rock-wind-key rock-wind-val))]))
+
+  (+ calculated-cycle-height (chamber-height chamber)))
 
 (define (input-parser input)
-  (in-cycle (for/list ([wind-dir (string->list (car input))])
-              (cond [(char=? wind-dir #\<) move-left]
-                    [else move-right]))))
+  (for/list ([wind-dir (string->list (car input))])
+    (cond [(char=? wind-dir #\<) move-left]
+          [else move-right])))
 
 (define (part1 input)
   (simulate-chamber input #:rocks-to-fall 2022))
