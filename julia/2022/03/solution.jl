@@ -22,8 +22,7 @@ module Aoc202203
 
     function solve(test::Bool)
 
-        input::String = parseInput(test)
-        lines::Vector{String} = split(input)
+        lines::Vector{String} = parseInput(test)
         
         part1::Int = [charToScore(first(∩(line[1:end ÷ 2], line[end ÷ 2 + 1:end]))) for line in lines] |> sum
         part2::Int = [charToScore(first(∩(group...))) for group in Iterators.partition(lines, 3)] |> sum
@@ -32,7 +31,8 @@ module Aoc202203
     end
 
     function parseInput(test::Bool)
-        return AocUtils.getInput(YEAR, DAY, test)
+        filename::String = AocUtils.getInputFilename(YEAR, DAY, test)
+        return readlines(filename)
     end
 
 end
