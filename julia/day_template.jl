@@ -8,6 +8,10 @@ module Aoc%Y%D0
     include("../../AocUtils.jl")
     import .AocUtils
 
+    function test()
+        return solve(true)
+    end
+
     function solve()
         return solve(false)
     end
