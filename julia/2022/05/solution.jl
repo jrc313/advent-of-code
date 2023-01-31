@@ -36,10 +36,9 @@ module Aoc202205
             amt = move[1]
             from = stacks[move[2]]
             to = stacks[move[3]]
-            moveStack = stacks[move[2]][end - (amt - 1):end]
-
+            moveStack = last(from, amt)
             append!(to, onePer ? reverse(moveStack) : moveStack)
-            keepat!(from, 1:(length(from) - amt))
+            resize!(from, length(from) - amt)
 
         end
 
