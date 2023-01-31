@@ -60,10 +60,7 @@ module Aoc202205
     end
 
     function parseMoveString(moveString::String)
-        return map(line -> begin
-            c = split(line)
-            (parse.(Int, (c[2], c[4], c[6])))
-        end, eachsplit(moveString, "\n", keepempty = false))
+        return map(c -> (parse.(Int, (c[2], c[4], c[6]))), [split(line) for line in eachsplit(moveString, "\n", keepempty = false)])
     end
 
     function parseInput(test::Bool)
