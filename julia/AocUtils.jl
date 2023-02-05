@@ -8,7 +8,7 @@ module AocUtils
 
     function getInput(year::Int, day::Int, test::Bool)
         open(getInputFilename(year, day, test)) do file
-            read(file, String)
+            readchomp(file)
         end
     end
 

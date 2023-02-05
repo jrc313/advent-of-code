@@ -45,7 +45,7 @@ module Aoc202205
         return join([s[end] for s in stacks])
     end
 
-    function parseStackString(stackString::String)
+    function parseStackString(stackString::AbstractString)
         lines = split(stackString, "\n")
 
         stacks = [Vector{Char}(undef, 0) for _ in (1:(length(lines[1]) + 1) ÷ 4)]
@@ -59,7 +59,7 @@ module Aoc202205
         return stacks
     end
 
-    function parseMoveString(moveString::String)
+    function parseMoveString(moveString::AbstractString)
         return map(c -> (parse.(Int, (c[2], c[4], c[6]))), [split(line) for line in eachsplit(moveString, "\n", keepempty = false)])
     end
 

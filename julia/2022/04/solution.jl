@@ -26,7 +26,7 @@ module Aoc202204
         return (part1, part2)
     end
 
-    function parseLine(line::String)
+    function parseLine(line::AbstractString)
         nums = [parse(Int, c) for c in split(line, (',', '-'))]
         return ((nums[1] : nums[2]), (nums[3] : nums[4]))
     end

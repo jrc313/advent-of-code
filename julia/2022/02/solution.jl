@@ -50,7 +50,7 @@ module Aoc202202
             end, moves) |> sum
     end
 
-    function parseLine(line::String)
+    function parseLine(line::AbstractString)
         c::Vector{Char} = collect(line)
         return (Int(c[1]) - 64, Int(c[3]) - 87)
     end
