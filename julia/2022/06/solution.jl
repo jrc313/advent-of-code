@@ -26,23 +26,27 @@ module Aoc202206
         return (part1, part2)
     end
 
-    function isdistinct(s::AbstractString)
+    function nextoffset(s::AbstractString)
         chars = Base.Set{Char}(s[1])
         for c in s[2:end]
             if c in chars
-                return false
+                return findfirst(c, s)
             end
             push!(chars, c)
         end
 
-        return true
+        return 0
     end
 
     function findmarker(signal::AbstractString, size::Int, start::Int = 1)
-        for (pos, marker) in enumerate(Iterators.map(i -> signal[i:i + size - 1], start:(length(signal) - size)))
-            if isdistinct(marker)
-                return pos + size + start - 2
+        pos = start
+        len = length(signal)
+        while pos < len - 1
+            offset = nextoffset(signal[pos:pos + size - 1])
+            if offset === 0
+                return pos + size - 1
             end
+            pos += offset
         end
 
         return 0
