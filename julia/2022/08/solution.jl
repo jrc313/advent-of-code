@@ -18,7 +18,7 @@ module Aoc202208
 
     function solve(test::Bool)
 
-        trees = parseInput(test)
+        trees = parseinput(test)
 
         return inspecttrees(trees)
     end
@@ -66,7 +66,7 @@ module Aoc202208
         return visible < length(treeline) ? visible + 1 : visible
     end
 
-    function parseInput(test::Bool)
+    function parseinput(test::Bool)
         return AocUtils.loadintmatrix(YEAR, DAY, test)
     end
 

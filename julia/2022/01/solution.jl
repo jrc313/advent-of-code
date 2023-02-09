@@ -13,7 +13,7 @@ module Aoc202201
     end
 
     function solve(test::Bool)
-        calories = parseInput(test)
+        calories = parseinput(test)
         partialsort!(calories, 1:3, rev = true)
         part1 = calories[1]
         part2 = calories[1:3] |> sum
@@ -21,18 +21,18 @@ module Aoc202201
         return (part1, part2)
     end
 
-    function parseInput(test::Bool)
-        inputFile::String = AocUtils.getInputFilename(YEAR, DAY, test)
+    function parseinput(test::Bool)
+        inputFile::String = AocUtils.getinputfilename(YEAR, DAY, test)
 
         calories::Vector{Int} = Vector{Int}[]
-        calorieTally::Int = 0
+        calorietally::Int = 0
 
         for line in eachline(inputFile)
             if isempty(line)
-                push!(calories, calorieTally)
-                calorieTally = 0
+                push!(calories, calorietally)
+                calorietally = 0
             else
-                calorieTally += parse(Int, line)
+                calorietally += parse(Int, line)
             end
         end
 

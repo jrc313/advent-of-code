@@ -22,15 +22,15 @@ module Aoc202202
 
     function solve(test::Bool)
 
-        moves = parseInput(test)
+        moves = parseinput(test)
 
-        part1 = solvePart1(moves)
-        part2 = solvePart2(moves)
+        part1 = solvepart1(moves)
+        part2 = solvepart2(moves)
 
         return (part1, part2)
     end
 
-    function solvePart1(moves::Vector{Tuple{Int, Int}})
+    function solvepart1(moves::Vector{Tuple{Int, Int}})
         map(move::Tuple{Int, Int} ->
             begin
                 op, me = move
@@ -40,7 +40,7 @@ module Aoc202202
             end, moves) |> sum
     end
 
-    function solvePart2(moves::Vector{Tuple{Int, Int}})
+    function solvepart2(moves::Vector{Tuple{Int, Int}})
         map(move::Tuple{Int, Int} ->
             begin
                 op, res = move
@@ -50,16 +50,16 @@ module Aoc202202
             end, moves) |> sum
     end
 
-    function parseLine(line::AbstractString)
+    function parseline(line::AbstractString)
         c::Vector{Char} = collect(line)
         return (Int(c[1]) - 64, Int(c[3]) - 87)
     end
 
-    function parseInput(test::Bool)
-        filename::String = AocUtils.getInputFilename(YEAR, DAY, test)
+    function parseinput(test::Bool)
+        filename::String = AocUtils.getinputfilename(YEAR, DAY, test)
 
         open(filename) do file
-            return [parseLine(line) for line in eachline(file)]
+            return [parseline(line) for line in eachline(file)]
         end
     end
 

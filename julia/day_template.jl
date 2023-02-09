@@ -18,7 +18,7 @@ module Aoc%Y%D0
 
     function solve(test::Bool)
 
-        input = parseInput(test)
+        input = parseinput(test)
 
         part1 = 0
         part2 = 0
@@ -26,8 +26,8 @@ module Aoc%Y%D0
         return (part1, part2)
     end
 
-    function parseInput(test::Bool)
-        return AocUtils.getInput(YEAR, DAY, test)
+    function parseinput(test::Bool)
+        return AocUtils.getinput(YEAR, DAY, test)
     end
 
 end

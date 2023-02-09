@@ -18,7 +18,7 @@ module Aoc202206
 
     function solve(test::Bool)
 
-        input = parseInput(test)
+        input = parseinput(test)
 
         part1 = findmarker(input, 4)
         part2 = findmarker(input, 14, part1)
@@ -52,8 +52,8 @@ module Aoc202206
         return 0
     end
 
-    function parseInput(test::Bool)
-        return AocUtils.getInput(YEAR, DAY, test)
+    function parseinput(test::Bool)
+        return AocUtils.getinput(YEAR, DAY, test)
     end
 
 end

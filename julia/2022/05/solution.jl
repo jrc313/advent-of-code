@@ -18,19 +18,19 @@ module Aoc202205
 
     function solve(test::Bool)
 
-        stacks, moves = parseInput(test)
+        stacks, moves = parseinput(test)
 
-        part1 = runCrane(deepcopy(stacks), moves)
-        part2 = runCrane(stacks, moves, false)
+        part1 = runcrane(deepcopy(stacks), moves)
+        part2 = runcrane(stacks, moves, false)
 
         return (part1, part2)
     end
 
-    function runCrane(stacks::Vector{Vector{Char}}, moves::Vector{Tuple{Int, Int, Int}})
-        runCrane(stacks, moves, true)
+    function runcrane(stacks::Vector{Vector{Char}}, moves::Vector{Tuple{Int, Int, Int}})
+        runcrane(stacks, moves, true)
     end
 
-    function runCrane(stacks::Vector{Vector{Char}}, moves::Vector{Tuple{Int, Int, Int}}, onePer::Bool)
+    function runcrane(stacks::Vector{Vector{Char}}, moves::Vector{Tuple{Int, Int, Int}}, onePer::Bool)
         for move in moves
 
             amt = move[1]
@@ -45,8 +45,8 @@ module Aoc202205
         return join([s[end] for s in stacks])
     end
 
-    function parseStackString(stackString::AbstractString)
-        lines = split(stackString, "\n")
+    function parsestackstring(stackstring::AbstractString)
+        lines = split(stackstring, "\n")
 
         stacks = [Vector{Char}(undef, 0) for _ in (1:(length(lines[1]) + 1) ÷ 4)]
 
@@ -59,16 +59,16 @@ module Aoc202205
         return stacks
     end
 
-    function parseMoveString(moveString::AbstractString)
-        return map(c -> (parse.(Int, (c[2], c[4], c[6]))), [split(line) for line in eachsplit(moveString, "\n", keepempty = false)])
+    function parsemovestring(movestring::AbstractString)
+        return map(c -> (parse.(Int, (c[2], c[4], c[6]))), [split(line) for line in eachsplit(movestring, "\n", keepempty = false)])
     end
 
-    function parseInput(test::Bool)
-        input = AocUtils.getInput(YEAR, DAY, test)
-        stackString::String, moveString::String = split(input, "\n\n");
+    function parseinput(test::Bool)
+        input = AocUtils.getinput(YEAR, DAY, test)
+        stackstring::String, movestring::String = split(input, "\n\n");
 
-        stacks = parseStackString(stackString)
-        moves = parseMoveString(moveString)
+        stacks = parsestackstring(stackstring)
+        moves = parsemovestring(movestring)
 
         return stacks, moves
     end

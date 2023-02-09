@@ -18,7 +18,7 @@ module Aoc202204
 
     function solve(test::Bool)
 
-        pairs = parseInput(test)
+        pairs = parseinput(test)
 
         part1 = [⊆(p[1], p[2]) | ⊆(p[2], p[1]) for p in pairs] |> count
         part2 = [!isempty(∩(p[1], p[2])) for p in pairs] |> count
@@ -26,16 +26,16 @@ module Aoc202204
         return (part1, part2)
     end
 
-    function parseLine(line::AbstractString)
+    function parseline(line::AbstractString)
         nums = [parse(Int, c) for c in split(line, (',', '-'))]
         return ((nums[1] : nums[2]), (nums[3] : nums[4]))
     end
 
-    function parseInput(test::Bool)
-        filename::String = AocUtils.getInputFilename(YEAR, DAY, test)
+    function parseinput(test::Bool)
+        filename::String = AocUtils.getinputfilename(YEAR, DAY, test)
 
         open(filename) do file
-            return [parseLine(line) for line in eachline(file)]
+            return [parseline(line) for line in eachline(file)]
         end
     end
 

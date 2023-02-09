@@ -16,22 +16,22 @@ module Aoc202203
         return solve(false)
     end
 
-    function charToScore(c::Char)
+    function charscore(c::Char)
         return c > 'Z' ? Int(c) - 96 : Int(c) - 38
     end
 
     function solve(test::Bool)
 
-        lines::Vector{AbstractString} = parseInput(test)
+        lines::Vector{AbstractString} = parseinput(test)
         
-        part1::Int = [charToScore(first(∩(line[1:end ÷ 2], line[end ÷ 2 + 1:end]))) for line in lines] |> sum
-        part2::Int = [charToScore(first(∩(group...))) for group in Iterators.partition(lines, 3)] |> sum
+        part1::Int = [charscore(first(∩(line[1:end ÷ 2], line[end ÷ 2 + 1:end]))) for line in lines] |> sum
+        part2::Int = [charscore(first(∩(group...))) for group in Iterators.partition(lines, 3)] |> sum
 
         return (part1, part2)
     end
 
-    function parseInput(test::Bool)
-        filename::String = AocUtils.getInputFilename(YEAR, DAY, test)
+    function parseinput(test::Bool)
+        filename::String = AocUtils.getinputfilename(YEAR, DAY, test)
         return readlines(filename)
     end
 

@@ -18,7 +18,7 @@ module Aoc202207
 
     function solve(test::Bool)
 
-        tree = parseInput(test)
+        tree = parseinput(test)
 
         fssize = 70000000
         spacereq = 30000000
@@ -32,17 +32,17 @@ module Aoc202207
 
     function buildtree(input::AbstractString)
         cwd = Vector{AbstractString}()
-        cwdString = ""
+        cwdstring = ""
         tree = Dict{AbstractString, Int}()
 
         for line in Iterators.filter(s -> s[1:4] ∉ [raw"$ ls", "dir "], eachsplit(input, "\n", keepempty = false))
             if startswith(line, raw"$ cd ..")
                 pop!(cwd)
-                cwdString = join(cwd, "/")
+                cwdstring = join(cwd, "/")
             elseif startswith(line, raw"$ cd")
                 push!(cwd, line[6:end])
-                cwdString = join(cwd, "/")
-                tree[cwdString] = 0
+                cwdstring = join(cwd, "/")
+                tree[cwdstring] = 0
             else
                 size = parse(Int, split(line)[1])
                 for i in 1:length(cwd)
@@ -54,8 +54,8 @@ module Aoc202207
         return tree
     end
 
-    function parseInput(test::Bool)
-        return buildtree(AocUtils.getInput(YEAR, DAY, test))
+    function parseinput(test::Bool)
+        return buildtree(AocUtils.getinput(YEAR, DAY, test))
     end
 
 end
