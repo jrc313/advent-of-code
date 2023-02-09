@@ -12,4 +12,9 @@ module AocUtils
         end
     end
 
+    function loadintmatrix(year::Int, day::Int, test::Bool)
+        filename = getInputFilename(year, day, test)
+        return reduce(vcat, [[Int(c) - 48 for c in line]' for line in eachline(filename)])
+    end
+
 end
