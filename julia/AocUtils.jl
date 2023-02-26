@@ -13,8 +13,12 @@ module AocUtils
     end
 
     function loadintmatrix(year::Int, day::Int, test::Bool)
+        loadintmatrix(year, day, test, (c, row, col) -> Int(c) - 48)
+    end
+
+    function loadintmatrix(year::Int, day::Int, test::Bool, charparsefn::Function)
         filename = getinputfilename(year, day, test)
-        return reduce(vcat, [[Int(c) - 48 for c in line]' for line in eachline(filename)])
+        return reduce(vcat, [[charparsefn(c, CartesianIndex(row, col)) for (col, c) in enumerate(line)]' for (row, line) in enumerate(eachline(filename))])
     end
 
 end
