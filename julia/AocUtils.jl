@@ -12,6 +12,10 @@ module AocUtils
         end
     end
 
+    function getinputlines(year::Int, day::Int, test::Bool)
+        return readlines(getinputfilename(year, day, test))
+    end
+
     function loadintmatrix(year::Int, day::Int, test::Bool)
         loadintmatrix(year, day, test, (c, row, col) -> Int(c) - 48)
     end

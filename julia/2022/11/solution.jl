@@ -68,8 +68,7 @@ module Aoc202211
     end
 
     function parseinput(test::Bool)
-        filename::String = AocUtils.getinputfilename(YEAR, DAY, test)
-        input::Vector{String} = readlines(filename)
+        input::Vector{String} = AocUtils.getinputlines(YEAR, DAY, test)
         monkeys::Vector{monkey} = Vector{monkey}()
         worrymod::Int = 1
 
