@@ -6,7 +6,7 @@ module Aoc202213
     export solve
 
     include("../../AocUtils.jl")
-    import .AocUtils
+    import .AocUtils, JSON
 
     function test()
         return solve(true)
@@ -70,7 +70,7 @@ module Aoc202213
 
     function parseinput(test::Bool)
         filename = AocUtils.getinputfilename(YEAR, DAY, test)
-        return [eval(Meta.parse(line)) for line in Iterators.filter(l -> !isempty(l), eachline(filename))]
+        return [JSON.parse(line) for line in Iterators.filter(l -> !isempty(l), eachline(filename))]
     end
 
 end

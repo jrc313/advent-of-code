@@ -21,8 +21,8 @@ module Aoc202210
         cycles::Vector{Int} = parseinput(test)
 
         part1::Int = sum([cycles[n] * n for n in 20:40:220])
-        crt::Vector{Char} = [n % 40 ∈ cycles[n]:cycles[n]+2 ? '#' : ' ' for n in 1:240]
-        part2::String = join([join(crt[n:n+39]) for n in 1:40:240], "\n")
+        crt::Vector{Char} = [n % 40 ∈ cycles[n]:cycles[n] + 2 ? '█' : ' ' for n in 1:240]
+        part2::String = join([join(crt[n:n + 38]) for n in 1:40:240], "\n")
 
         return (part1, part2)
     end

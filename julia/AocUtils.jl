@@ -17,7 +17,7 @@ module AocUtils
     end
 
     function loadintmatrix(year::Int, day::Int, test::Bool)
-        loadintmatrix(year, day, test, (c, row, col) -> Int(c) - 48)
+        loadintmatrix(year, day, test, (c, ind) -> Int(c) - 48)
     end
 
     function loadintmatrix(year::Int, day::Int, test::Bool, charparsefn::Function)
