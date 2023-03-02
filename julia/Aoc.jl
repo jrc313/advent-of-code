@@ -34,9 +34,10 @@ module Aoc
     end
 
     function rundays(year, days, benchmark = false, test = false)
-        results = Matrix(undef, 0, benchmark ? 8 : 3)
+        results = Matrix(undef, 0, benchmark ? 6 : 3)
 
         pm = Progress(length(days), 0.1, "Running days $(first(days)) to $(last(days))")
+        benchmetrics = Matrix(undef, 0, 3)
         for day in days
             dynloadday(year, day)
             p1, p2 = dynrunday(year, day, test)
@@ -44,6 +45,7 @@ module Aoc
             if benchmark
                 bench = runbench(year, day, test)
                 row = hcat(row, benchmarktorow(bench))
+                benchmetrics = [benchmetrics; benchmarkmetrics(bench)]
             end
 
             results = [results; row]
@@ -52,8 +54,21 @@ module Aoc
         end
 
         header = ["Day", "Part 1", "Part 2"]
-        benchmark && append!(header, ["Min", "Median", "Mean", "Memory", "Allocs"])
-        pretty_table(results; header = header, linebreaks = true, alignment = :l, hlines = :all)
+        highlighters = ()
+        if benchmark
+            append!(header, ["Time (med)", "Memory", "Allocs"])
+            totals = summarybenchrow(benchmetrics, sum, "Total")
+            medians = summarybenchrow(benchmetrics, median, "Median")
+            results = [results; totals; medians]
+            
+            numrows = size(results, 1)
+            totalrownum, medianrownum = numrows - 1, numrows
+            totalhl = Highlighter((data, i, j) -> i == totalrownum, crayon"cyan")
+            medianhl = Highlighter((data, i, j) -> i == medianrownum, crayon"magenta")
+
+            highlighters = (totalhl, medianhl)
+        end
+        pretty_table(results; header = header, linebreaks = true, alignment = :l, hlines = :all, highlighters = highlighters)
     end
 
     function runprofile(year, day, test = false)
@@ -77,13 +92,23 @@ module Aoc
         return eval(Meta.parse("Aoc$(year)$(lpad(day, 2, "0")).$(test ? "test" : "solve")()"))
     end
 
+    function benchmarkmetrics(b)
+        return [median(b.times) memory(b) allocs(b)]
+    end
+
+    function summarybenchrow(m, f, name)
+        tim = BenchmarkTools.prettytime(f(m[:,1]))
+        mem = BenchmarkTools.prettymemory(f(m[:,2]))
+        alc = Int(f(m[:,3]))
+        ["" "" name  tim mem alc]
+    end
+
+
     function benchmarktorow(b)
-        min = BenchmarkTools.prettytime(minimum(b.times))
-        avg = BenchmarkTools.prettytime(mean(b.times))
-        med = BenchmarkTools.prettytime(median(b.times))
+        tim = BenchmarkTools.prettytime(median(b.times))
         mem = BenchmarkTools.prettymemory(memory(b))
         alc = allocs(b)
 
-        return [min med avg mem alc]
+        return [tim mem alc]
     end
 end
