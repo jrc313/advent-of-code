@@ -3,7 +3,7 @@ module Aoc
     using BenchmarkTools, Suppressor, PrettyTables, ProgressMeter, ProfileView
     export runalldays, runday, benchday
 
-    const YEARDAYS = Dict([(2022, 13)])
+    const YEARDAYS = Dict([(2022, 14)])
     const BENCH_SAMPLES = 1000
     const PROFILE_ITERATIONS = 50
 
@@ -30,7 +30,7 @@ module Aoc
             return
         end
         maxdays = YEARDAYS[year]
-        rundays(year, 1:maxdays, benchmark)
+        @time rundays(year, 1:maxdays, benchmark)
     end
 
     function rundays(year, days, benchmark = false, test = false)
