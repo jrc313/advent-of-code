@@ -1,9 +1,9 @@
 module Aoc
 
     using BenchmarkTools, Suppressor, PrettyTables, ProgressMeter, ProfileView
-    export runalldays, runday, benchday
+    export runalldays, runday, benchday, benchalldays, runprofile, testday
 
-    const YEARDAYS = Dict([(2022, 14)])
+    const YEARDAYS = Dict([(2022, 15)])
     const BENCH_SAMPLES = 1000
     const PROFILE_ITERATIONS = 50
 

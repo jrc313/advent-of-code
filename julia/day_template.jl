@@ -6,7 +6,7 @@ module Aoc%Y%D0
     export solve
 
     include("../../AocUtils.jl")
-    import .AocUtils
+    using .AocUtils
 
     function test()
         return solve(true)

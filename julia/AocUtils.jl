@@ -2,6 +2,31 @@ module AocUtils
 
     using Printf
 
+    export Point, Point3d, getinputfilename, getinputlines, loadintmatrix, manhattandist
+
+    struct Point
+        x::Int
+        y::Int
+    end
+
+    Base.show(io::IO, p::Point) = print(io, "Point($(p.x), $(p.y))")
+
+    struct Point3d
+        x::Int
+        y::Int
+        z::Int
+    end
+
+    Base.show(io::IO, p::Point3d) = print(io, "Point3($(p.x), $(p.y), $(p.z))")
+
+    function manhattandist(a::Point, b::Point)
+        return abs(a.x - b.x) + abs(a.y - b.y)
+    end
+
+    function manhattandist(a::Point3d, b::Point3d)
+        return abs(a.x - b.x) + abs(a.y - b.y) + abs(a.z - b.z)
+    end
+
     function getinputfilename(year::Int, day::Int, test::Bool)
         return @sprintf("%d/%02d/%s.txt", year, day, test ? "test" : "input")
     end
