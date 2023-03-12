@@ -47,15 +47,20 @@ module Aoc202215
     end
 
     function findholeinsensors(sensors::Vector{Sensor}, bounds::UnitRange{Int}, maxallowed::Int)
-        for row in bounds
+        lk = ReentrantLock()
+        result::Int = 0
+        Threads.@threads for row in bounds
+            result != 0 && break
             validsensors = filter(s -> row - s.range <= s.pos.y <= row + s.range, sensors)
             sensorranges = map(s -> sensorrangeatrow(s, row), validsensors)
             contiguous, holecolumn = iscontiguousrange(sensorranges, maxallowed)
             if !contiguous
-                return (holecolumn * 4000000) + row
+                lock(lk) do
+                    result = (holecolumn * 4000000) + row
+                end
             end
         end
-        return 0
+        return result
     end
 
     function sensorrangeatrow(sensor::Sensor, row::Int)
