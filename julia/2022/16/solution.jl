@@ -95,7 +95,7 @@ module Aoc202216
     function findbestdistinct(paths::Vector{Path})
         bestscore = 0
 
-        for path in paths[1:end÷2]
+        for path in paths[1:end]
             bestdistinctindex = findfirst(isdisjoint(path.keys, p.keys[2:end]) for p in paths)
             isnothing(bestdistinctindex) && continue
             bestdistinct = paths[bestdistinctindex]
