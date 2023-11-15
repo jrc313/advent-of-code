@@ -1,3 +1,3 @@
-# Advent of Code
+# Advent of Code - Python
 
-My attempted solutions for the Advent of Code.
+My Python solutions for the Advent of Code.
