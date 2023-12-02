@@ -39,7 +39,7 @@ module Aoc202302
                     num = parse(Int, cubestr[1:spacepos - 1])
                     colour = cubestr[spacepos + 1:end]
                     num > maxcounts[colour] && push!(invalid, gamenum)
-                    cubemax[colour] = max(num, cubemax[colour])
+                    num > cubemax[colour] && (cubemax[colour] = num)
                 end
             end
             push!(gamesmax, cubemax)
