@@ -31,16 +31,14 @@ module Aoc202302
         games::Vector{String} = AocUtils.getinputlines(YEAR, DAY, test)
         gamesmax::Vector{Dict{String, Int}} = []
         for (gamenum, gamestr) in enumerate(games)
+
             cubemax::Dict{String, Int} = Dict("red" => 0, "green" => 0, "blue" => 0)
-            start::Int = findfirst(':', gamestr) + 2
-            for setstr in split(gamestr[start:end], "; ")
-                for cubestr in split(setstr, ", ")
-                    spacepos = findfirst(' ', cubestr)
-                    num = parse(Int, cubestr[1:spacepos - 1])
-                    colour = cubestr[spacepos + 1:end]
-                    num > maxcounts[colour] && push!(invalid, gamenum)
-                    num > cubemax[colour] && (cubemax[colour] = num)
-                end
+            gameparts = split(gamestr, [' ', ',', ';'])
+
+            for i in 3:3:length(gameparts)
+                num = parse(Int, gameparts[i])
+                num > maxcounts[gameparts[i + 1]] && push!(invalid, gamenum)
+                num > cubemax[gameparts[i + 1]] && (cubemax[gameparts[i + 1]] = num)
             end
             push!(gamesmax, cubemax)
         end
