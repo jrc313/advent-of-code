@@ -50,4 +50,9 @@ module AocUtils
         return reduce(vcat, [[charparsefn(c, CartesianIndex(row, col)) for (col, c) in enumerate(line)]' for (row, line) in enumerate(eachline(filename))])
     end
 
+    function loadcharmatrix(year::Int, day::Int, test::Bool)
+        filename = getinputfilename(year, day, test)
+        return reduce(vcat, [permutedims([c for c in line]) for line in eachline(filename)])
+    end
+
 end
