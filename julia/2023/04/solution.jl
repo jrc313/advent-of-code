@@ -43,17 +43,18 @@ module Aoc202304
 
         for (index, line) in enumerate(AocUtils.getinputlines(YEAR, DAY, test))
             if index == 1
-                numstart, numcount = getnumoncard(line)
+                numstart, numcount = countnumoncard(line)
             end
 
-            nums = map(c -> parse(Int, c), filter(c -> !isempty(c), split(line[numstart:end], [' ', '|'])))
-            push!(cards, length(intersect(nums[1:numcount], nums[numcount+1:end])))
+            nums::Vector{Int} = [parse(Int, num) for num in eachsplit(line[numstart:end], [' ', '|'], keepempty = false)]
+            matches::Int = length(intersect(nums[1:numcount], nums[numcount+1:end]))
+            push!(cards, matches)
         end
 
         return cards
     end
 
-    function getnumoncard(line)
+    function countnumoncard(line)
         start = findfirst(':', line) + 2
         bar = findfirst('|', line)
         numcount = (bar - start) ÷ 3
