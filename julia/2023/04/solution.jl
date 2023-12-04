@@ -29,7 +29,7 @@ module Aoc202304
             end
         end
 
-        part1 = [matchcount == 0 ? 0 : 2^(matchcount - 1) for matchcount in matches] |> sum
+        part1 = [1 << (matchcount - 1) for matchcount in matches] |> sum
         part2 = sum(copies)
 
         return (part1, part2)
@@ -38,16 +38,14 @@ module Aoc202304
     function parseinput(test::Bool)
         cards::Vector{Int} = []
 
-        numstart = 0
-        numcount = 0
+        lines = AocUtils.getinputlines(YEAR, DAY, test)
+        numstart, numcount = countnumoncard(lines[1])
 
-        for (index, line) in enumerate(AocUtils.getinputlines(YEAR, DAY, test))
-            if index == 1
-                numstart, numcount = countnumoncard(line)
-            end
-
-            nums::Vector{Int} = [parse(Int, num) for num in eachsplit(line[numstart:end], [' ', '|'], keepempty = false)]
-            matches::Int = length(intersect(nums[1:numcount], nums[numcount+1:end]))
+        for line in lines
+            nums = collect(eachsplit(line[numstart:end]))
+            cardnums = nums[1:numcount]
+            mynums = nums[numcount+2:end]
+            matches::Int = reduce((tally, n) -> (n in mynums) ? tally + 1 : tally, cardnums, init = 0)
             push!(cards, matches)
         end
 
