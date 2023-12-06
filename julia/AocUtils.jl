@@ -55,4 +55,13 @@ module AocUtils
         return reduce(vcat, [permutedims([c for c in line]) for line in eachline(filename)])
     end
 
+    function showvar(v::Any)
+        show(stdout, "text/plain", v)
+        println()
+    end
+
+    function overlap(r1::UnitRange{Int}, r2::UnitRange{Int})
+        return r1.start <= r2.stop && r1.stop >= r2.start
+    end
+
 end

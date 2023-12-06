@@ -3,7 +3,7 @@ module Aoc
     using BenchmarkTools, Suppressor, PrettyTables, ProgressMeter, ProfileView, Traceur
     export runalldays, runday, benchday, benchalldays, profileday, testday, traceday
 
-    const YEARDAYS = Dict([(2022, 16), (2023, 3)])
+    const YEARDAYS = Dict([(2022, 16), (2023, 6)])
     const BENCH_SAMPLES = 1000
     const PROFILE_ITERATIONS = 50
 
@@ -66,15 +66,16 @@ module Aoc
         if benchmark
             append!(header, ["Time (med)", "Memory", "Allocs"])
             totals = summarybenchrow(benchmetrics, sum, "Total")
-            medians = summarybenchrow(benchmetrics, median, "Median")
-            results = [results; totals; medians]
+            #medians = summarybenchrow(benchmetrics, median, "Median")
+            results = [results; totals]#; medians]
             
             numrows = size(results, 1)
-            totalrownum, medianrownum = numrows - 1, numrows
+            #totalrownum, medianrownum = numrows - 1, numrows
+            totalrownum = numrows
             totalhl = Highlighter((data, i, j) -> i == totalrownum, crayon"cyan")
-            medianhl = Highlighter((data, i, j) -> i == medianrownum, crayon"magenta")
+            #medianhl = Highlighter((data, i, j) -> i == medianrownum, crayon"magenta")
 
-            highlighters = (totalhl, medianhl)
+            highlighters = (totalhl)#, medianhl)
         end
         pretty_table(results; header = header, linebreaks = true, alignment = :l, hlines = :all, highlighters = highlighters)
     end
