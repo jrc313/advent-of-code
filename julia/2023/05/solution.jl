@@ -75,6 +75,12 @@ module Aoc202305
         return r1.start <= r2.stop && r1.stop >= r2.start
     end
 
+    function splitranges(r1::UnitRange{Int}, r2::UnitRange{Int})
+        !overlap(r1, r2) && return [r1, r2]
+        stops = sort(collect(Set([r1.start, r1.stop, r2.start, r2.stop])))
+        return [(i > 1 ? stop + 1 : stop):stops[i + 1] for (i, stop) in enumerate(stops[1:end-1])]
+    end
+
     function parseinput(test::Bool)
 
         input = AocUtils.getinputlines(YEAR, DAY, test)

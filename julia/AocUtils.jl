@@ -41,6 +41,10 @@ module AocUtils
         return readlines(getinputfilename(year, day, test))
     end
 
+    function eachinputlines(year::Int, day::Int, test::Bool)
+        return eachline(getinputfilename(year, day, test))
+    end
+
     function loadintmatrix(year::Int, day::Int, test::Bool)
         loadintmatrix(year, day, test, (c, ind) -> Int(c) - 48)
     end
