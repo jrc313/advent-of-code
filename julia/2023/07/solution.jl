@@ -21,41 +21,48 @@ module Aoc202307
     const JCARD_VALS::Dict{Char, Int} = Dict('2' => 1, '3' => 2, '4' => 3, '5' => 4, '6' => 5, '7' => 6, '8' => 7, '9' => 8, 'T' => 9, 'J' => 0, 'Q' => 11, 'K' => 12, 'A' => 13)
     const CARD_COUNT_RANKS::Dict{Vector{Int}, Int} = Dict([5] => 7, [4, 1] => 6, [3, 2] => 5, [3, 1, 1] => 4, [2, 2, 1] => 3, [2, 1, 1, 1] => 2, [1, 1, 1, 1, 1] => 1)
 
+    struct Hand
+        rank::Int
+        cardvals::Vector{Int}
+        bid::Int
+    end
+
+    function Base.isless(a::Hand, b::Hand)
+        a.rank == b.rank && isless(a.cardvals, b.cardvals) && return true
+        isless(a.rank, b.rank) && return true
+        return false
+    end
+
     function solve(test::Bool)
 
-        hands = parseinput(test)
+        hands::Vector{Hand}, jhands::Vector{Hand} = parseinput(test)
 
-        part1 = reduce(+, [rank * hand[5] for (rank, hand) in enumerate(sort(hands, lt = (a, b) -> handisless((a[1], a[2]), (b[1], b[2]))))])
-        part2 = reduce(+, [rank * hand[5] for (rank, hand) in enumerate(sort(hands, lt = (a, b) -> handisless((a[3], a[4]), (b[3], b[4]))))])
+        part1 = reduce(+, [rank * hand.bid for (rank, hand) in enumerate(sort(hands))])
+        part2 = reduce(+, [rank * hand.bid for (rank, hand) in enumerate(sort(jhands))])
 
         return (part1, part2)
     end
 
-    function handisless(a::Tuple{Int, Vector{Int}}, b::Tuple{Int, Vector{Int}})
-        isless(a[1], b[1]) && return true
-        isless(b[1], a[1]) && return false
-        isless(a[2], b[2]) && return true
-        return false
-    end
-
     function parseinput(test::Bool)
-        hands = []
+        hands::Vector{Hand} = []
+        jhands::Vector{Hand} = []
         for line in AocUtils.eachinputlines(YEAR, DAY, test)
-            hand = line[1:5]
-            bid = parse(Int, line[7:end])
-            cardvals = [CARD_VALS[c] for c in hand]
-            jcardvals = [JCARD_VALS[c] for c in hand]
-            cardcounts = sort(collect(values(counter(hand))), rev = true)
-            jcount = count('J', hand)
-            jcardcounts = copy(cardcounts)
+            hand::String = line[1:5]
+            bid::Int = parse(Int, line[7:end])
+            cardvals::Vector{Int} = [CARD_VALS[c] for c in hand]
+            jcardvals::Vector{Int} = [JCARD_VALS[c] for c in hand]
+            cardcounts::Vector{Int} = sort(collect(values(counter(hand))), rev = true)
+            jcount::Int = count('J', hand)
+            jcardcounts::Vector{Int} = copy(cardcounts)
             if 5 > jcount > 0
                 deleteat!(jcardcounts, findfirst(v -> v == jcount, jcardcounts))
                 jcardcounts[1] += jcount
             end
-            push!(hands, (CARD_COUNT_RANKS[cardcounts], cardvals, CARD_COUNT_RANKS[jcardcounts], jcardvals, bid))
+            push!(hands, Hand(CARD_COUNT_RANKS[cardcounts], cardvals, bid))
+            push!(jhands, Hand(CARD_COUNT_RANKS[jcardcounts], jcardvals, bid))
         end
 
-        return hands
+        return (hands, jhands)
     end
 
 end
