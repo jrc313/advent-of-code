@@ -17,13 +17,11 @@ module Aoc202306
     end
 
     function solve(test::Bool)
-        times, dists = parseinput(test)
-        #return (0, 0)
-        p1ranges = [getwinrange(t, d + 1) for (t, d) in zip(times[1], dists[1])]
-        p2range = getwinrange(times[2], dists[2] + 1)
+        times::Vector{Int}, dists::Vector{Int} = parseinput(test)
 
-        part1 = reduce(*, p1ranges)
-        part2 = p2range
+        ranges = [getwinrange(t, dists[i] + 1) for (i, t) in enumerate(times)]
+        part1 = reduce(*, ranges[1:end-1])
+        part2 = ranges[end]
 
         return (part1, part2)
     end
@@ -34,8 +32,8 @@ module Aoc202306
     end
 
     function parseinput(test::Bool)
-        lines = eachline(AocUtils.getinputfilename(YEAR, DAY, test))
-        return [([parse(Int, num) for num in eachsplit(line[12:end])], parse(Int, replace(line[12:end], r"\s+" => ""))) for line in lines]
+        return [[[parse(Int, num) for num in eachsplit(line[12:end])]; [parse(Int, replace(line[12:end], r"\s+" => ""))]]
+                    for line in eachline(AocUtils.getinputfilename(YEAR, DAY, test))]
     end
 
 end
