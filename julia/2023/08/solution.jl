@@ -17,26 +17,26 @@ module Aoc202308
     end
 
     function solve(test::Bool)
+        dirs, nodes, network = parseinput(test)
 
-        dirs, network = parseinput(test)
-        ghoststarts = filter(n -> endswith(n, "A"), keys(network))
+        ghoststarts::Vector{Int} = collect(values(filter(((k, v),) -> endswith(k, "A"), nodes)))
+        ghostends::Vector{Int} = sort(collect(values(filter(((k, v),) -> endswith(k, "Z"), nodes))))
 
-        part1 = getstepcount(dirs, network, "AAA", "ZZZ")
-        part2 = [getstepcount(dirs, network, start, "Z", true) for start in ghoststarts] |> lcm
+        part1 = getstepcount(dirs, network, nodes["AAA"], [nodes["ZZZ"]])
+        part2 = [getstepcount(dirs, network, start, ghostends, true) for start in ghoststarts] |> lcm
 
         return (part1, part2)
     end
 
-    function getstepcount(dirs, network, start, dest, ghostwalk = false)
+    function getstepcount(dirs::Vector{Int}, network::Vector{Tuple{Int, Int}}, start::Int, dests::Vector{Int}, ghostwalk::Bool = false)
         node = start
         steps = 0
-        dirindex = 1
-        maxdirindex = length(dirs)
-        destfn = ghostwalk ? n -> endswith(n, dest) : n -> n == dest
+        dircount = length(dirs)
+        destfn = ghostwalk ? n -> n in dests : n -> n == dests[1]
+        
         while !destfn(node)
-            node = network[node][dirs[dirindex]]
+            node = network[node][dirs[steps % dircount + 1]]
             steps += 1
-            dirindex == maxdirindex ? dirindex = 1 : dirindex += 1
         end
 
         return steps
@@ -44,10 +44,12 @@ module Aoc202308
 
     function parseinput(test::Bool)
         input = AocUtils.getinputlines(YEAR, DAY, test)
-
         dirs = [c == 'L' ? 1 : 2 for c in input[1]]
-        network = Dict([line[1:3] => (line[8:10], line[13:15]) for line in input[3:end]])
-        return dirs, network
+        networkdata::Vector{Tuple{String, Int, String, String}} = [(line[1:3], i, line[8:10], line[13:15]) for (i, line) in enumerate(input[3:end])]
+        nodes::Dict{String, Int} = Dict([node => index for (node, index, _, _) in networkdata])
+        network::Vector{Tuple{Int, Int}} = [(nodes[l], nodes[r]) for (_, _, l, r) in networkdata]
+
+        return dirs, nodes, network
     end
 
 end
