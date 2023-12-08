@@ -37,8 +37,8 @@ module Aoc202307
 
         hands::Vector{Hand}, jhands::Vector{Hand} = parseinput(test)
 
-        part1 = reduce(+, [rank * hand.bid for (rank, hand) in enumerate(sort(hands))])
-        part2 = reduce(+, [rank * hand.bid for (rank, hand) in enumerate(sort(jhands))])
+        part1 = [rank * hand.bid for (rank, hand) in enumerate(sort(hands))] |> sum
+        part2 = [rank * hand.bid for (rank, hand) in enumerate(sort(jhands))] |> sum
 
         return (part1, part2)
     end
