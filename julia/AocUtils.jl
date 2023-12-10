@@ -2,7 +2,16 @@ module AocUtils
 
     using Printf
 
-    export Point, Point3d, getinputfilename, getinputlines, loadintmatrix, manhattandist
+    export Point, Point3d, getinputfilename, getinputlines, loadintmatrix, loadmatrix, manhattandist, getneighbours,
+           GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT, GRID_NEIGHBOURS
+
+    const GRID_UP::CartesianIndex = CartesianIndex(-1, 0)
+    const GRID_DOWN::CartesianIndex = CartesianIndex(1, 0)
+    const GRID_LEFT::CartesianIndex = CartesianIndex(0, -1)
+    const GRID_RIGHT::CartesianIndex = CartesianIndex(0, 1)
+
+    const GRID_NEIGHBOURS::Vector{CartesianIndex} = [GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT]
+
 
     struct Point
         x::Int
@@ -57,6 +66,15 @@ module AocUtils
     function loadcharmatrix(year::Int, day::Int, test::Bool)
         filename = getinputfilename(year, day, test)
         return reduce(vcat, [permutedims([c for c in line]) for line in eachline(filename)])
+    end
+
+    function loadmatrix(year::Int, day::Int, test::Bool, charparsefn::Function)
+        filename = getinputfilename(year, day, test)
+        return reduce(vcat, [permutedims([charparsefn(c, CartesianIndex(row, col)) for (col, c) in enumerate(line)]) for (row, line) in enumerate(eachline(filename))])
+    end
+
+    function getneighbours(pos::CartesianIndex, matrixdims::Tuple{Int, Int})
+        return filter(n -> matrixdims[1] >= n[1] > 0 && matrixdims[2] >= n[2] > 0, [pos + neighbour for neighbour in GRID_NEIGHBOURS])
     end
 
     function showvar(v::Any)
