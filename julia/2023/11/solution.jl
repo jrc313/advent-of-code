@@ -18,55 +18,48 @@ module Aoc202311
 
     function solve(test::Bool)
 
-        universe, olduniverse = getuniverse(2, test ? 10 : 1000000, test)
+        universe::Vector{Point}, olduniverse::Vector{Point} = getuniverse(1, test ? 9 : 999999, test)
 
-        galaxycount = length(universe)
+        galaxycount::Int = length(universe)
         universedist::Int = 0
         olduniversedist::Int = 0
 
         for i in 1:galaxycount-1
+            g1::Point = universe[i]
+            og1::Point = olduniverse[i]
             for j in i+1:galaxycount
-                universedist += manhattandist(universe[i], universe[j])
-                olduniversedist += manhattandist(olduniverse[i], olduniverse[j])
+                universedist += manhattandist(g1, universe[j])
+                olduniversedist += manhattandist(og1, olduniverse[j])
             end
         end
-        
-        part1 = universedist
-        part2 = olduniversedist
 
-        return (part1, part2)
+        return (universedist, olduniversedist)
     end
 
     function getuniverse(expansionfactor::Int, oldexpansionfactor::Int, test::Bool)
         universe::Vector{Point} = []
         olduniverse::Vector{Point} = []
-        
-        expansion::Int = 0
-        oldexpansion::Int = 0
-        input = getinputlines(YEAR, DAY, test)
-        occupiedcols::Vector{Int} = zeros(length(input[1]))
+        emptyrows::Int = 0
+        input::Vector{String} = getinputlines(YEAR, DAY, test)
+        colstatus::Vector{Int} = ones(length(input[1]))
 
-        for (rownum, line) in enumerate(input)
+        for (rownum::Int, line::String) in enumerate(input)
             posinline::Vector{Int} = findall('#', line)
-            if isempty(posinline)
-                expansion += expansionfactor - 1
-                oldexpansion += oldexpansionfactor - 1
-            else
-                append!(universe, [Point(pos, rownum + expansion) for pos in posinline])
-                append!(olduniverse, [Point(pos, rownum + oldexpansion) for pos in posinline])
-                for col in posinline
-                    occupiedcols[col] = 1
-                end
+            isempty(posinline) && (emptyrows += 1)
+            for pos in posinline
+                push!(universe, Point(pos, rownum + (expansionfactor * emptyrows)))
+                push!(olduniverse, Point(pos, rownum + (oldexpansionfactor * emptyrows)))
+                colstatus[pos] = 0
             end
         end
-        
-        for col = reverse(filter(c -> occupiedcols[c] == 0, 1:length(occupiedcols)))
-            for (i, galaxy) in enumerate(universe)
-                if galaxy.x > col
-                    universe[i] = Point(galaxy.x + expansionfactor - 1, galaxy.y)
-                    olduniverse[i] = Point(olduniverse[i].x + oldexpansionfactor - 1, olduniverse[i].y)
-                end
-            end
+
+        emptycounts::Vector{Int} = cumsum(colstatus)
+        for i::Int in eachindex(universe)
+            g1::Point = universe[i]
+            g2::Point = olduniverse[i]
+            emptycolcount = emptycounts[g1.x]
+            universe[i] = Point(g1.x + (expansionfactor * emptycolcount), g1.y)
+            olduniverse[i] = Point(g2.x + (oldexpansionfactor * emptycolcount), g2.y)
         end
 
         return universe, olduniverse
