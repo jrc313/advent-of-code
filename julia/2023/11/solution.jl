@@ -60,7 +60,7 @@ module Aoc202311
             end
         end
         
-        for col = setdiff(length(occupiedcols):-1:1, filter(c -> occupiedcols[c] == 1, 1:length(occupiedcols)))
+        for col = reverse(filter(c -> occupiedcols[c] == 0, 1:length(occupiedcols)))
             for (i, galaxy) in enumerate(universe)
                 if galaxy.x > col
                     universe[i] = Point(galaxy.x + expansionfactor - 1, galaxy.y)
