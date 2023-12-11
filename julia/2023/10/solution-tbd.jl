@@ -67,19 +67,28 @@ module Aoc202310
         maxdist::Int = pathlength ÷ 2
 
         inside::Bool = false
-                
+        fnfixlength = l::Int -> l > maxdist ? 2 * maxdist - l + 1 : l
+
+        #AocUtils.showvar([c == 0 ? 0 : fnfixlength(c) for c in pathfield])
+        
         
         for (i, cell) in enumerate(pathfield[fieldsize[1] + 1:end - 1])
             i % fieldsize[1] == 1 && (inside = false)
-            if cell > 0 && pathfield[i] != 0 && abs(((cell) % maxdist) - ((pathfield[i]) % maxdist)) == 1
+            if cell != 0 && pathfield[i] != 0
+                if abs(fnfixlength(cell) - fnfixlength(pathfield[i])) == 1
                     inside = !inside
-                            end
+                end
+            end
 
             if cell == 0 && inside
                 enclosedcount += 1
                 pathfield[i + fieldsize[1]] = TILE_CLOSED
             end
         end
+
+        show([c == 0 ? '.' : c == -1 ? 'X' : field[i] == 0 ? ' ' : PIPE_MAP[field[i]] for (i, c) in enumerate(pathfield)])
+        #println(maxdist)
+        #AocUtils.showvar([c for c in pathfield])
 
         return (maxdist, enclosedcount)
     end

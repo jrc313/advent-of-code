@@ -82,6 +82,10 @@ module AocUtils
         println()
     end
 
+    function Base.show(m::Matrix{Char})
+        [println(join(row)) for row in eachrow(m)]
+    end
+
     function overlap(r1::UnitRange{Int}, r2::UnitRange{Int})
         return r1.start <= r2.stop && r1.stop >= r2.start
     end
