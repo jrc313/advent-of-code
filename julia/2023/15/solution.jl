@@ -38,14 +38,14 @@ module Aoc202315
     end
 
     function gethash(s::String, start::Int = 0)
-        return reduce((tally, c) -> ((tally + Int(c)) * 17) % 256, s, init = start)
+        return reduce((tally, c) -> ((tally + Int(c)) * 17) & 255, s, init = start)
     end
 
     function parseinput(test::Bool)
         input::String = AocUtils.getinput(YEAR, DAY, test)
         seqsum::Int = 0
         boxes::Vector{Vector{Lens}} = fill([], 256)
-        for op in split(input, ',')
+        for op in eachsplit(input, ',')
             isremove::Bool = op[end] == '-'
             labelend::Int = (isremove ? 1 : 2)
             label::String = op[1:end-labelend]
