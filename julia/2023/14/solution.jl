@@ -21,13 +21,13 @@ module Aoc202314
     function solve(test::Bool)
 
         platform = parseinput(test)
-        
+
         megaload::Int = 0
         spinloads::Vector{Vector{Int}} = []
         found::Bool = false
         i::Int = 1
         while !found
-            nextload::Vector{Int} = spincycle(platform)
+            nextload::Vector{Int} = fastspincycle(platform)
             cycleindex::Union{Nothing, Int} = findfirst(l -> l == nextload, spinloads)
             if !isnothing(cycleindex)
                 cyclelength = i - cycleindex
@@ -44,31 +44,31 @@ module Aoc202314
         return (part1, part2)
     end
 
-    function spincycle(platform::Matrix{Int})
-        h, w = size(platform)
-        north::Int = tiltplatform(platform, CartesianIndex(1, 1):CartesianIndex(1, w), c -> CartesianIndex(1, c[2]):CartesianIndex(h, c[2]), GRID_UP)
-        tiltplatform(platform, CartesianIndex(1, 1):CartesianIndex(h, 1), c -> CartesianIndex(c[1], 1):CartesianIndex(c[1], w), GRID_LEFT)
-        south::Int = tiltplatform(platform, CartesianIndex(h, 1):CartesianIndex(h, w), c -> CartesianIndex(h, c[2]):CartesianIndex(-1, 1):CartesianIndex(1, c[2]), GRID_DOWN)
-        tiltplatform(platform, CartesianIndex(1, w):CartesianIndex(h, w), c -> CartesianIndex(c[1], w):CartesianIndex(1, -1):CartesianIndex(c[1], 1), GRID_RIGHT)
+    function fastspincycle(platform::Matrix)
+        w = size(platform)[1]
+        north::Int = tiltplatformfast(w, 1:w, 1:w, (a, b) -> platform[b, a], (a, b, v) -> platform[b, a] = v, <, +)
+        tiltplatformfast(w, 1:w, 1:w, (a, b) -> platform[a, b], (a, b, v) -> platform[a, b] = v, <, +)
+        south::Int = tiltplatformfast(w, 1:w, w:-1:1, (a, b) -> platform[b, a], (a, b, v) -> platform[b, a] = v, >, -)
+        tiltplatformfast(w, 1:w, w:-1:1, (a, b) -> platform[a, b], (a, b, v) -> platform[a, b] = v, >, -)
         return [north, south]
     end
 
-    function tiltplatform(platform::Matrix{Int}, outerrng::CartesianIndices, innerrngfn::Function, falldir::CartesianIndex)
-        rowcount = size(platform)[1]
+    function tiltplatformfast(h::Int,
+                              outerrng::Union{UnitRange{Int}, StepRange{Int}}, innerrng::Union{UnitRange{Int}, StepRange{Int}},
+                              getfn::Function, setfn::Function, comparefn::Function, incfn::Function)
         loadsum::Int = 0
-        comparefn::Function = <
-        (falldir[1] < 0 || falldir[2] < 0) && (comparefn = >)
-        for n in outerrng
-            lastoccupied::CartesianIndex = n + falldir
-            for m in innerrngfn(n)
-                if platform[m] == 2 && comparefn(m, lastoccupied)
-                    lastoccupied = lastoccupied - falldir
-                    platform[m] = 0
-                    platform[lastoccupied] = 2
-                    loadsum += rowcount - lastoccupied[1] + 1
+        for m::Int in outerrng
+            lastoccupied::Int = incfn(innerrng[1], -1)
+            for n::Int in innerrng
+                v::Int = getfn(m, n)
+                if v == 2 && comparefn(lastoccupied, n)
+                    lastoccupied = incfn(lastoccupied, 1)
+                    loadsum += h - lastoccupied + 1
+                    setfn(m, n, 0)
+                    setfn(m, lastoccupied, 2)
                 else
-                    platform[m] == 2 && (loadsum += rowcount - m[1] + 1)
-                    platform[m] != 0 && (lastoccupied = m)
+                    v == 2 && (loadsum += h - lastoccupied + 1)
+                    v != 0 && (lastoccupied = n)
                 end
             end
         end
