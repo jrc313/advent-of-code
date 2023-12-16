@@ -3,7 +3,7 @@ module AocUtils
     using Printf
 
     export Point, Point3d, getinputfilename, getinputlines, loadintmatrix, loadmatrix, manhattandist, getneighbours,
-           GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT, GRID_NEIGHBOURS
+           GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT, GRID_NEIGHBOURS, add
 
     const GRID_UP::CartesianIndex = CartesianIndex(-1, 0)
     const GRID_DOWN::CartesianIndex = CartesianIndex(1, 0)
@@ -19,6 +19,10 @@ module AocUtils
     end
 
     Base.show(io::IO, p::Point) = print(io, "Point($(p.x), $(p.y))")
+    Base.show(io::IO, c::CartesianIndex) = print(io, "($(c[1]), $(c[2]))")
+    function add(p1::Point, p2::Point)
+        Point(p1.x + p2.x, p1.y + p2.y)
+    end
 
     struct Point3d
         x::Int
