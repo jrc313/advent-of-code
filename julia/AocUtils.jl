@@ -1,10 +1,12 @@
 module AocUtils
 
+    import Base:+
+    import Base:*
     using Printf
 
-    export Point, Point3d, getinputfilename, getinputlines, loadintmatrix, loadmatrix, manhattandist, getneighbours,
-           GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT, GRID_NEIGHBOURS, add,
-           POINT_UP, POINT_DOWN, POINT_LEFT, POINT_RIGHT
+    export Point, Point3d, getinputfilename, getinputlines, loadintmatrix, loadmatrix, manhattandist, getneighbours, showvar,
+           GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT, GRID_NEIGHBOURS,
+           POINT_UP, POINT_DOWN, POINT_LEFT, POINT_RIGHT, POINT_NEIGHBOURS
 
     const GRID_UP::CartesianIndex = CartesianIndex(-1, 0)
     const GRID_DOWN::CartesianIndex = CartesianIndex(1, 0)
@@ -23,11 +25,7 @@ module AocUtils
     const POINT_LEFT::Point = Point(0, -1)
     const POINT_RIGHT::Point = Point(0, 1)
 
-    Base.show(io::IO, p::Point) = print(io, "Point($(p.x), $(p.y))")
-    Base.show(io::IO, c::CartesianIndex) = print(io, "($(c[1]), $(c[2]))")
-    function add(p1::Point, p2::Point)
-        Point(p1.x + p2.x, p1.y + p2.y)
-    end
+    const POINT_NEIGHBOURS::Vector{Point} = [POINT_UP, POINT_DOWN, POINT_LEFT, POINT_RIGHT]
 
     struct Point3d
         x::Int
@@ -35,12 +33,19 @@ module AocUtils
         z::Int
     end
 
-    Base.show(io::IO, p::Point3d) = print(io, "Point3($(p.x), $(p.y), $(p.z))")
+    Base.show(io::IO, p::Point) = print(io, "($(p.x), $(p.y))")
+    Base.show(io::IO, p::Point3d) = print(io, "($(p.x), $(p.y), $(p.z))")
+    Base.show(io::IO, c::CartesianIndex) = print(io, "($(c[1]), $(c[2]))")
+    Base.:(+)(p1::Point, p2::Point) = Point(p1.x + p2.x, p1.y + p2.y)
+    Base.:(+)(p1::Point3d, p2::Point3d) = Point3d(p1.x + p2.x, p1.y + p2.y, p1.z + p2.z)
+    Base.:reverse(p::Point) = Point(p.y, p.x)
+    Base.:(*)(p::Point, i::Int) = Point(p.x * i, p.y * i)
+    Base.:(*)(i::Int, p::Point) = Point(p.x * i, p.y * i)
 
     function manhattandist(a::Point, b::Point)
         return abs(a.x - b.x) + abs(a.y - b.y)
     end
-
+    
     function manhattandist(a::Point3d, b::Point3d)
         return abs(a.x - b.x) + abs(a.y - b.y) + abs(a.z - b.z)
     end

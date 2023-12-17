@@ -16,11 +16,12 @@ module Aoc202316
         return solve(false)
     end
     
-    const SPACE::Int = 0
-    const UPDOWN::Int = 1
-    const LEFTRIGHT::Int = 2
-    const DEFLECTRIGHT::Int = 3
-    const DEFLECTLEFT::Int = 4
+    const BORDER::Int = 0
+    const SPACE::Int = 1
+    const UPDOWN::Int = 2
+    const LEFTRIGHT::Int = 3
+    const DEFLECTRIGHT::Int = 4
+    const DEFLECTLEFT::Int = 5
     const CHAR_MAP::Dict{Char, Int} = Dict('.' => SPACE, '|' => UPDOWN, '-' => LEFTRIGHT, '/' => DEFLECTRIGHT, '\\' => DEFLECTLEFT)
 
     function solve(test::Bool)
@@ -72,7 +73,7 @@ module Aoc202316
                 beampos::Point, beamdir::Point = beam
                 nodeval::Int = contraption[beampos.x, beampos.y]
 
-                if beamhash(beampos, beamdir) in seenstates || nodeval == -1
+                if beamhash(beampos, beamdir) in seenstates || nodeval == BORDER
                     deleteat!(activebeams, i)
                     continue
                 end
@@ -81,16 +82,16 @@ module Aoc202316
                 beammap[beampos.x, beampos.y] = true
                 
                 if nodeval == UPDOWN && (beamdir == POINT_LEFT || beamdir == POINT_RIGHT)
-                    activebeams[i] = (add(beampos, POINT_UP), POINT_UP)
-                    push!(activebeams, (add(beampos, POINT_DOWN), POINT_DOWN))
+                    activebeams[i] = (beampos + POINT_UP, POINT_UP)
+                    push!(activebeams, (beampos + POINT_DOWN, POINT_DOWN))
                 elseif nodeval == LEFTRIGHT && (beamdir == POINT_UP || beamdir == POINT_DOWN)
-                    activebeams[i] = (add(beampos, POINT_LEFT), POINT_LEFT)
-                    push!(activebeams, (add(beampos, POINT_RIGHT), POINT_RIGHT))
+                    activebeams[i] = (beampos + POINT_LEFT, POINT_LEFT)
+                    push!(activebeams, (beampos + POINT_RIGHT, POINT_RIGHT))
                 elseif nodeval == DEFLECTLEFT || nodeval == DEFLECTRIGHT
                     beamdir = deflectbeam(beamdir, nodeval)
-                    activebeams[i] = (add(beampos, beamdir), beamdir)
+                    activebeams[i] = (beampos + beamdir, beamdir)
                 else
-                    activebeams[i] = (add(beampos, beamdir), beamdir)
+                    activebeams[i] = (beampos + beamdir, beamdir)
                 end
             end
         end
@@ -101,8 +102,9 @@ module Aoc202316
     function parseinput(test::Bool)
         m::Matrix{Int} = AocUtils.loadintmatrix(YEAR, DAY, test, (c, pos) -> CHAR_MAP[c])
         h, w = size(m)
-        m = vcat(fill(-1, 1, w), m, fill(-1, 1, w))
-        m = hcat(fill(-1, h + 2, 1), m, fill(-1, h + 2, 1))
+        m = vcat(zeros(1, w), m, zeros(1, w))
+        m = hcat(zeros(h + 2, 1), m, zeros(h + 2, 1))
+        return m
     end
 
 end
