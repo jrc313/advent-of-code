@@ -25,15 +25,18 @@ module Aoc202316
 
     function solve(test::Bool)
 
-        layout::Matrix{Int} = parseinput(test)
+        contraption::Matrix{Int} = parseinput(test)
 
-        cols, rows = size(layout)
+        cols, rows = size(contraption)
+        cols = cols - 1
+        rows = rows - 1
 
         energies::Vector{Int} = []
-        append!(energies, [runcontraption(layout, c, GRID_RIGHT) for c in CartesianIndex(1, 1):CartesianIndex(rows, 1)])
-        append!(energies, [runcontraption(layout, c, GRID_DOWN) for c in CartesianIndex(1, 1):CartesianIndex(1, cols)])
-        append!(energies, [runcontraption(layout, c, GRID_LEFT) for c in CartesianIndex(1, cols):CartesianIndex(rows, cols)])
-        append!(energies, [runcontraption(layout, c, GRID_UP) for c in CartesianIndex(rows, 1):CartesianIndex(rows, cols)])
+        append!(energies,
+            [runcontraption(contraption, c, GRID_RIGHT) for c in CartesianIndex(2, 2):CartesianIndex(rows, 2)],
+            [runcontraption(contraption, c, GRID_DOWN) for c in CartesianIndex(2, 2):CartesianIndex(2, cols)],
+            [runcontraption(contraption, c, GRID_LEFT) for c in CartesianIndex(2, cols):CartesianIndex(rows, cols)],
+            [runcontraption(contraption, c, GRID_UP) for c in CartesianIndex(rows, 2):CartesianIndex(rows, cols)])
 
         part1 = energies[1]
         part2 = maximum(energies)
@@ -41,59 +44,53 @@ module Aoc202316
         return (part1, part2)
     end
 
-    function deflectbeam(beamdir::CartesianIndex, deflectdir::Int)::CartesianIndex
+    function deflectbeam(beamdir::Point, deflectdir::Int)::Point
         if deflectdir == DEFLECTLEFT
-            beamdir == GRID_UP && return GRID_LEFT
-            beamdir == GRID_DOWN && return GRID_RIGHT
-            beamdir == GRID_LEFT && return GRID_UP
-            beamdir == GRID_RIGHT && return GRID_DOWN
+            beamdir == POINT_UP && return POINT_LEFT
+            beamdir == POINT_DOWN && return POINT_RIGHT
+            beamdir == POINT_LEFT && return POINT_UP
+            beamdir == POINT_RIGHT && return POINT_DOWN
         else
-            beamdir == GRID_UP && return GRID_RIGHT
-            beamdir == GRID_DOWN && return GRID_LEFT
-            beamdir == GRID_LEFT && return GRID_DOWN
-            beamdir == GRID_RIGHT && return GRID_UP
+            beamdir == POINT_UP && return POINT_RIGHT
+            beamdir == POINT_DOWN && return POINT_LEFT
+            beamdir == POINT_LEFT && return POINT_DOWN
+            beamdir == POINT_RIGHT && return POINT_UP
         end
     end
-    
-    function showbeam(beam::Tuple{CartesianIndex, CartesianIndex})
-        s::String = "$(beam[1]) "
-        beam[2] == GRID_UP && return "$s ^"
-        beam[2] == GRID_DOWN && return "$s v"
-        beam[2] == GRID_LEFT && return "$s <"
-        beam[2] == GRID_RIGHT && return "$s >"
+
+    function beamhash(pos::Point, dir::Point)::Int
+        return pos.x << 24 + pos.y << 16 + dir.x << 8 + dir.y
     end
 
-    function inbounds(c::CartesianIndex, w, h)
-        return c[1] > 0 && c[1] <= h && c[2] > 0 && c[2] <= w
-    end
+    function runcontraption(contraption::Matrix{Int}, startpos::CartesianIndex, startdir::CartesianIndex)::Int
+        beammap::Matrix{Bool} = falses(size(contraption))
+        activebeams::Vector{Tuple{Point, Point}} = [(Point(startpos[1], startpos[2]), Point(startdir[1], startdir[2]))]
+        seenstates::Set{Int} = Set()
 
-    function runcontraption(layout::Matrix{Int}, startpos::CartesianIndex, startdir::CartesianIndex)
-        h, w = size(layout)
-        beammap::Matrix{Bool} = falses(size(layout))
-        activebeams::Vector{Tuple{CartesianIndex, CartesianIndex}} = [(startpos, startdir)]
-        seenstates::Set{Tuple{CartesianIndex, CartesianIndex}} = Set()
         while length(activebeams) > 0
             for (i, beam) in enumerate(activebeams)
-                beampos::CartesianIndex, beamdir::CartesianIndex = beam
-                
-                if beam in seenstates || !inbounds(beampos, w, h)
+                beampos::Point, beamdir::Point = beam
+                nodeval::Int = contraption[beampos.x, beampos.y]
+
+                if beamhash(beampos, beamdir) in seenstates || nodeval == -1
                     deleteat!(activebeams, i)
                     continue
                 end
-                push!(seenstates, beam)
-                beammap[beampos] = true
-                nodeval::Int = layout[beampos]
-                if nodeval == UPDOWN && (beamdir == GRID_LEFT || beamdir == GRID_RIGHT)
-                    activebeams[i] = (beampos + GRID_UP, GRID_UP)
-                    push!(activebeams, (beampos + GRID_DOWN, GRID_DOWN))
-                elseif nodeval == LEFTRIGHT && (beamdir == GRID_UP || beamdir == GRID_DOWN)
-                    activebeams[i] = (beampos + GRID_LEFT, GRID_LEFT)
-                    push!(activebeams, (beampos + GRID_RIGHT, GRID_RIGHT))
+
+                push!(seenstates, beamhash(beampos, beamdir))
+                beammap[beampos.x, beampos.y] = true
+                
+                if nodeval == UPDOWN && (beamdir == POINT_LEFT || beamdir == POINT_RIGHT)
+                    activebeams[i] = (add(beampos, POINT_UP), POINT_UP)
+                    push!(activebeams, (add(beampos, POINT_DOWN), POINT_DOWN))
+                elseif nodeval == LEFTRIGHT && (beamdir == POINT_UP || beamdir == POINT_DOWN)
+                    activebeams[i] = (add(beampos, POINT_LEFT), POINT_LEFT)
+                    push!(activebeams, (add(beampos, POINT_RIGHT), POINT_RIGHT))
                 elseif nodeval == DEFLECTLEFT || nodeval == DEFLECTRIGHT
                     beamdir = deflectbeam(beamdir, nodeval)
-                    activebeams[i] = (beampos + beamdir, beamdir)
+                    activebeams[i] = (add(beampos, beamdir), beamdir)
                 else
-                    activebeams[i] = (beampos + beamdir, beamdir)
+                    activebeams[i] = (add(beampos, beamdir), beamdir)
                 end
             end
         end
@@ -102,7 +99,10 @@ module Aoc202316
     end
 
     function parseinput(test::Bool)
-        return AocUtils.loadintmatrix(YEAR, DAY, test, (c, pos) -> CHAR_MAP[c])
+        m::Matrix{Int} = AocUtils.loadintmatrix(YEAR, DAY, test, (c, pos) -> CHAR_MAP[c])
+        h, w = size(m)
+        m = vcat(fill(-1, 1, w), m, fill(-1, 1, w))
+        m = hcat(fill(-1, h + 2, 1), m, fill(-1, h + 2, 1))
     end
 
 end
