@@ -46,20 +46,6 @@ module Aoc202318
         return points1, len1, points2, len2
     end
 
-    function bounds(points::Vector{Point})
-        minh::Int = minw::Int = maxh::Int = maxw::Int = 1
-        hoffset::Int = woffset::Int = 0
-        for p in points
-            minh = min(minh, p.x)
-            minw = min(minw, p.y)
-            maxh = max(maxh, p.x)
-            maxw = max(maxw, p.y)
-        end
-
-        minh < 1 && (hoffset = 1 - minh)
-        minw < 1 && (woffset = 1 - minw)
-    end
-
     function shoelace(plan::Vector{Step})
         points1::Vector{Point}, perimeter1::Int, points2::Vector{Point}, perimeter2::Int = plantopoints(plan)
         s1::Int = s2::Int = s3::Int = s4::Int = 0
