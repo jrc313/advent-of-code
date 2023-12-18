@@ -6,7 +6,7 @@ module AocUtils
 
     export Point, Point3d, getinputfilename, getinputlines, loadintmatrix, loadmatrix, manhattandist, getneighbours, showvar,
            GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT, GRID_NEIGHBOURS,
-           POINT_UP, POINT_DOWN, POINT_LEFT, POINT_RIGHT, POINT_NEIGHBOURS
+           POINT_UP, POINT_DOWN, POINT_LEFT, POINT_RIGHT, POINT_NEIGHBOURS, bounds
 
     const GRID_UP::CartesianIndex = CartesianIndex(-1, 0)
     const GRID_DOWN::CartesianIndex = CartesianIndex(1, 0)
@@ -48,6 +48,17 @@ module AocUtils
     
     function manhattandist(a::Point3d, b::Point3d)
         return abs(a.x - b.x) + abs(a.y - b.y) + abs(a.z - b.z)
+    end
+
+    function bounds(points::Vector{Point})
+        minh::Int = minw::Int = maxh::Int = maxw::Int = 1
+        for p in points
+            minh = min(minh, p.x)
+            minw = min(minw, p.y)
+            maxh = max(maxh, p.x)
+            maxw = max(maxw, p.y)
+        end
+        return (Point(minh, minw), Point(maxh, maxw))
     end
 
     function getinputfilename(year::Int, day::Int, test::Bool)
