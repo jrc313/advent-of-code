@@ -45,35 +45,29 @@ module Aoc202310
         return (part1, part2)
     end
 
-    function shoelace(points::Vector{Point}, perimeter::Int)
-        s1::Int = s2::Int = 0
-        push!(points, points[1])
-        for i in eachindex(points[1:end-1])
-            s1 += points[i].x * points[i+1].y
-            s2 += points[i+1].x * points[i].y
-        end
-
-        return (abs(s1 - s2) - perimeter) ÷ 2 + 1
-    end
-
     function getpath(start::CartesianIndex, field::Matrix{Int})
         startpoint::Point = Point(start[1], start[2])
-        corners::Vector{Point} = [startpoint]
         prev::Point = startpoint
         current::Point = startpoint + ADJ_MAP[field[start]][1]
         pathlength::Int = 1
 
+        s1::Int = s2::Int = 0 # Shoelace sums
+
         while current != startpoint
+            s1 += prev.x * current.y
+            s2 += current.x * prev.y
             currentval::Int = field[current.x, current.y]
-            3 <= currentval <= 6 && push!(corners, current)
             next::Point = current + ADJ_MAP[currentval][1] == prev ? current + ADJ_MAP[currentval][2] : current + ADJ_MAP[currentval][1]
             pathlength += 1
             prev = current
             current = next
         end
 
+        s1 += prev.x * current.y
+        s2 += current.x * prev.y
+
         maxdist::Int = pathlength ÷ 2
-        enclosedcount = shoelace(corners, pathlength)
+        enclosedcount = (abs(s1 - s2) - pathlength) ÷ 2 + 1
 
         return (maxdist, enclosedcount)
     end
