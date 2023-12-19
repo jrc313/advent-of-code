@@ -25,9 +25,9 @@ module Aoc202310
     const TILE_DIR_MAP::Dict{CartesianIndex,Int} = Dict(GRID_UP => TILE_UP, GRID_DOWN => TILE_DOWN, GRID_LEFT => TILE_LEFT, GRID_RIGHT => TILE_RIGHT)
     const TILE_CHAR_MAP::Vector{Char} = [' ', 'X', '^', 'v', '>', '<']
 
-    const ADJ_MAP::Vector{Vector{CartesianIndex}} =
-        [[GRID_UP, GRID_DOWN], [GRID_LEFT, GRID_RIGHT], [GRID_UP, GRID_RIGHT],
-        [GRID_UP, GRID_LEFT], [GRID_DOWN, GRID_LEFT], [GRID_DOWN, GRID_RIGHT]]
+    const ADJ_MAP::Vector{Vector{Point}} =
+        [[POINT_UP, POINT_DOWN], [POINT_LEFT, POINT_RIGHT], [POINT_UP, POINT_RIGHT],
+        [POINT_UP, POINT_LEFT], [POINT_DOWN, POINT_LEFT], [POINT_DOWN, POINT_RIGHT]]
 
     function solve()
         return solve(false)
@@ -45,49 +45,44 @@ module Aoc202310
         return (part1, part2)
     end
 
-    function getpath(start::CartesianIndex, field::Matrix{Int})
-        fieldsize = size(field)
-        pathfield::Matrix{Int} = zeros(Int, fieldsize)
-        prev::CartesianIndex = start
-        current::CartesianIndex = start + ADJ_MAP[field[start]][1]
-        # Magic offset that fixes it for my input
-        offset::Int = 5
-        pathfield[start] = offset + 1
-        pathlength::Int = 1
-        enclosedcount::Int = 0
+    function shoelace(points::Vector{Point}, perimeter::Int)
+        s1::Int = s2::Int = 0
+        push!(points, points[1])
+        for i in eachindex(points[1:end-1])
+            s1 += points[i].x * points[i+1].y
+            s2 += points[i+1].x * points[i].y
+        end
 
-        while current != start
-            next::CartesianIndex = current + ADJ_MAP[field[current]][1] == prev ? current + ADJ_MAP[field[current]][2] : current + ADJ_MAP[field[current]][1]
+        return (abs(s1 - s2) - perimeter) ÷ 2 + 1
+    end
+
+    function getpath(start::CartesianIndex, field::Matrix{Int})
+        startpoint::Point = Point(start[1], start[2])
+        corners::Vector{Point} = [startpoint]
+        prev::Point = startpoint
+        current::Point = startpoint + ADJ_MAP[field[start]][1]
+        pathlength::Int = 1
+
+        while current != startpoint
+            currentval::Int = field[current.x, current.y]
+            3 <= currentval <= 6 && push!(corners, current)
+            next::Point = current + ADJ_MAP[currentval][1] == prev ? current + ADJ_MAP[currentval][2] : current + ADJ_MAP[currentval][1]
             pathlength += 1
-            pathfield[current] = offset + pathlength
             prev = current
             current = next
         end
 
         maxdist::Int = pathlength ÷ 2
-
-        inside::Bool = false
-                
-        
-        for (i, cell) in enumerate(pathfield[fieldsize[1] + 1:end - 1])
-            i % fieldsize[1] == 1 && (inside = false)
-            if cell > 0 && pathfield[i] != 0 && abs(((cell) % maxdist) - ((pathfield[i]) % maxdist)) == 1
-                    inside = !inside
-                            end
-
-            if cell == 0 && inside
-                enclosedcount += 1
-                pathfield[i + fieldsize[1]] = TILE_CLOSED
-            end
-        end
+        enclosedcount = shoelace(corners, pathlength)
 
         return (maxdist, enclosedcount)
     end
 
     function getstype(pos::CartesianIndex, field::Matrix{Int})
-        neighbours = getneighbours(pos, size(field))
-        connections = filter(n -> field[n] != 0 && (ADJ_MAP[field[n]][1] + n == pos || ADJ_MAP[field[n]][2] + n == pos), neighbours)
-        offsets = [connections[1] - pos, connections[2] - pos]
+        pospoint::Point = Point(pos[1], pos[2])
+        neighbours = getneighbours(pospoint, size(field))
+        connections = filter(n -> field[n.x, n.y] != 0 && (ADJ_MAP[field[n.x, n.y]][1] + n == pospoint || ADJ_MAP[field[n.x, n.y]][2] + n == pospoint), neighbours)
+        offsets = [connections[1] - pospoint, connections[2] - pospoint]
         offsetsrev = reverse(offsets)
         return findfirst(d -> d == offsets || d == offsetsrev, ADJ_MAP)
     end

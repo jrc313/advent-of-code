@@ -1,6 +1,7 @@
 module AocUtils
 
     import Base:+
+    import Base:-
     import Base:*
     using Printf
 
@@ -38,6 +39,8 @@ module AocUtils
     Base.show(io::IO, c::CartesianIndex) = print(io, "($(c[1]), $(c[2]))")
     Base.:(+)(p1::Point, p2::Point) = Point(p1.x + p2.x, p1.y + p2.y)
     Base.:(+)(p1::Point3d, p2::Point3d) = Point3d(p1.x + p2.x, p1.y + p2.y, p1.z + p2.z)
+    Base.:(-)(p1::Point, p2::Point) = Point(p1.x - p2.x, p1.y - p2.y)
+    Base.:(-)(p1::Point3d, p2::Point3d) = Point3d(p1.x - p2.x, p1.y - p2.y, p1.z - p2.z)
     Base.:reverse(p::Point) = Point(p.y, p.x)
     Base.:(*)(p::Point, i::Int) = Point(p.x * i, p.y * i)
     Base.:(*)(i::Int, p::Point) = Point(p.x * i, p.y * i)
@@ -100,6 +103,10 @@ module AocUtils
 
     function getneighbours(pos::CartesianIndex, matrixdims::Tuple{Int, Int})
         return filter(n -> matrixdims[1] >= n[1] > 0 && matrixdims[2] >= n[2] > 0, [pos + neighbour for neighbour in GRID_NEIGHBOURS])
+    end
+
+    function getneighbours(pos::Point, matrixdims::Tuple{Int, Int})
+        return filter(n -> matrixdims[1] >= n.x > 0 && matrixdims[2] >= n.y > 0, [pos + neighbour for neighbour in POINT_NEIGHBOURS])
     end
 
     function showvar(v::Any)
