@@ -1,7 +1,7 @@
 module Aoc
 
-    using BenchmarkTools, Suppressor, PrettyTables, ProgressMeter, ProfileView, Traceur
-    export runalldays, runday, benchday, benchalldays, profileday, testday, traceday
+    using BenchmarkTools, Suppressor, PrettyTables, ProgressMeter, ProfileView
+    export runalldays, runday, benchday, benchalldays, profileday, testday
 
     const YEARDAYS = Dict([(2022, 16), (2023, 14)])
     const BENCH_SAMPLES = 1000
@@ -22,10 +22,6 @@ module Aoc
 
     function profileday(year, day, test = false)
         runprofile(year, day, test)
-    end
-
-    function traceday(year, day, test = false)
-        runtrace(year, day, test)
     end
 
     function benchalldays(year)
@@ -78,13 +74,6 @@ module Aoc
             highlighters = (totalhl)#, medianhl)
         end
         pretty_table(results; header = header, linebreaks = true, alignment = :l, hlines = :all, highlighters = highlighters)
-    end
-
-    function runtrace(year, day, test = false)
-        dynloadday(year, day)
-        # Run once to force compilation
-        dynrunday(year, day, test)
-        @trace dynrunday(year, day, test)
     end
 
     function runprofile(year, day, test = false)

@@ -7,7 +7,8 @@ module AocUtils
 
     export Point, Point3d, getinputfilename, getinputlines, loadintmatrix, loadmatrix, manhattandist, getneighbours, showvar,
            GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT, GRID_NEIGHBOURS,
-           POINT_UP, POINT_DOWN, POINT_LEFT, POINT_RIGHT, POINT_NEIGHBOURS, bounds
+           POINT_UP, POINT_DOWN, POINT_LEFT, POINT_RIGHT, POINT_NEIGHBOURS, bounds,
+           replacecharat
 
     const GRID_UP::CartesianIndex = CartesianIndex(-1, 0)
     const GRID_DOWN::CartesianIndex = CartesianIndex(1, 0)
@@ -16,9 +17,9 @@ module AocUtils
 
     const GRID_NEIGHBOURS::Vector{CartesianIndex} = [GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT]
 
-    struct Point
-        x::Int
-        y::Int
+    struct Point{T<:Real}
+        x::T
+        y::T
     end
     
     const POINT_UP::Point = Point(-1, 0)
@@ -28,10 +29,10 @@ module AocUtils
 
     const POINT_NEIGHBOURS::Vector{Point} = [POINT_UP, POINT_DOWN, POINT_LEFT, POINT_RIGHT]
 
-    struct Point3d
-        x::Int
-        y::Int
-        z::Int
+    struct Point3d{T<:Real}
+        x::T
+        y::T
+        z::T
     end
 
     Base.show(io::IO, p::Point) = print(io, "($(p.x), $(p.y))")
@@ -62,6 +63,28 @@ module AocUtils
             maxw = max(maxw, p.y)
         end
         return (Point(minh, minw), Point(maxh, maxw))
+    end
+
+    function replacecharat(i::Int, c::Char, s::String)
+        sv::Vector{Char} = collect(s)
+        sv[i] = c
+        return join(sv)
+    end
+
+    function replacecharat(iv::Vector{Int}, c::Char, s::String)
+        sv::Vector{Char} = collect(s)
+        for i in iv
+            sv[i] = c
+        end
+        return join(sv)
+    end
+
+    function replacecharat(iv::UnitRange{Int}, c::Char, s::String)
+        sv::Vector{Char} = collect(s)
+        for i in iv
+            sv[i] = c
+        end
+        return join(sv)
     end
 
     function getinputfilename(year::Int, day::Int, test::Bool)
