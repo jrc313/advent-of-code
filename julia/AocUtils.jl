@@ -4,6 +4,8 @@ module AocUtils
     import Base:-
     import Base:*
     using Printf
+    using CSV
+    using DataFrames
 
     export Point, Point3d, getinputfilename, getinputlines, loadintmatrix, loadmatrix, manhattandist, getneighbours, showvar,
            GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT, GRID_NEIGHBOURS,
@@ -122,6 +124,11 @@ module AocUtils
     function loadmatrix(year::Int, day::Int, test::Bool, charparsefn::Function)
         filename = getinputfilename(year, day, test)
         return reduce(vcat, [permutedims([charparsefn(c, CartesianIndex(row, col)) for (col, c) in enumerate(line)]) for (row, line) in enumerate(eachline(filename))])
+    end
+
+    function loadcsv(year::Int, day::Int, test::Bool, delim::String = ",")
+        filename = getinputfilename(year, day, test)
+        return CSV.read(filename, DataFrame; header = false, delim=delim)
     end
 
     function getneighbours(pos::CartesianIndex, matrixdims::Tuple{Int, Int})
