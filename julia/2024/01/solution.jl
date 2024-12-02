@@ -25,14 +25,14 @@ module Aoc202401
         l2::Vector{Int64} = sort(input[!, 2])
         counts::Accumulator{Int64, Int64} = counter(l2)
 
-        part1::Int = [abs(c[1] - c[2]) for c in zip(l1, l2)] |> sum
-        part2::Int = [counts[i] * i for i in l1] |> sum
+        part1::Int = reduce((acc, c) -> acc + abs(c[1] - c[2]), zip(l1, l2), init = 0)
+        part2::Int = reduce((acc, i) -> acc + (counts[i] * i), l1, init = 0)
 
         return (part1, part2)
     end
 
     function parseinput(test::Bool)
-        return AocUtils.loadcsv(YEAR, DAY, test, "   ")
+        return AocUtils.loadcsv(YEAR, DAY, test, "   ", Int64)
     end
 
 end

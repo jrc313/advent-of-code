@@ -126,9 +126,9 @@ module AocUtils
         return reduce(vcat, [permutedims([charparsefn(c, CartesianIndex(row, col)) for (col, c) in enumerate(line)]) for (row, line) in enumerate(eachline(filename))])
     end
 
-    function loadcsv(year::Int, day::Int, test::Bool, delim::String = ",")
+    function loadcsv(year::Int, day::Int, test::Bool, delim::String = ",", type::Type = String)
         filename = getinputfilename(year, day, test)
-        return CSV.read(filename, DataFrame; header = false, delim=delim)
+        return CSV.read(filename, DataFrame; header = false, delim = delim, types = type)
     end
 
     function getneighbours(pos::CartesianIndex, matrixdims::Tuple{Int, Int})
