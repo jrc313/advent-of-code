@@ -19,20 +19,21 @@ module Aoc202403
     function solve(test::Bool)
 
         input = parseinput(test)
-        p1re = r"mul\(([0-9]+),([0-9]+)\)"
-        
-        part1 = sum([reduce(*, (parse.(Int, m.captures)), init = 1) for m in eachmatch(p1re, input)])
-
         domul = true
+        part1 = 0
         part2 = 0
-        p2re = r"mul\(([0-9]+),([0-9]+)\)|do\(\)|don't\(\)"
-        for m in eachmatch(p2re, input)
+        re = r"mul\(([0-9]+),([0-9]+)\)|do\(\)|don't\(\)"
+        for m in eachmatch(re, input)
             if m.match == "do()"
                 domul = true
             elseif m.match == "don't()"
                 domul = false
-            elseif domul
-                part2 += reduce(*, (parse.(Int, m.captures)), init = 1)
+            else
+                mul = reduce(*, (parse.(Int, m.captures)), init = 1)
+                part1 += mul
+                if domul
+                    part2 += reduce(*, (parse.(Int, m.captures)), init = 1)
+                end
             end
         end
 
