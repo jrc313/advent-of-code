@@ -3,7 +3,7 @@ module Aoc
     using BenchmarkTools, Suppressor, PrettyTables, ProgressMeter, ProfileView
     export runalldays, runday, benchday, benchalldays, profileday, testday
 
-    const YEARDAYS = Dict([(2022, 16), (2023, 14)])
+    const YEARDAYS = Dict([(2022, 16), (2023, 14), (2024, 3)])
     const BENCH_SAMPLES = 1000
     const PROFILE_ITERATIONS = 50
 

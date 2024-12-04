@@ -16,6 +16,10 @@ module AocUtils
     const GRID_DOWN::CartesianIndex = CartesianIndex(1, 0)
     const GRID_LEFT::CartesianIndex = CartesianIndex(0, -1)
     const GRID_RIGHT::CartesianIndex = CartesianIndex(0, 1)
+    const GRID_UP_LEFT::CartesianIndex = GRID_UP + GRID_LEFT
+    const GRID_UP_RIGHT::CartesianIndex = GRID_UP + GRID_RIGHT
+    const GRID_DOWN_LEFT::CartesianIndex = GRID_DOWN + GRID_LEFT
+    const GRID_DOWN_RIGHT::CartesianIndex = GRID_DOWN + GRID_RIGHT
 
     const GRID_NEIGHBOURS::Vector{CartesianIndex} = [GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT]
 

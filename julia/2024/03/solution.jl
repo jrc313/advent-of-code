@@ -29,10 +29,10 @@ module Aoc202403
             elseif m.match == "don't()"
                 domul = false
             else
-                mul = reduce(*, (parse.(Int, m.captures)), init = 1)
+                mul = parse(Int, m.captures[1]) * parse(Int, m.captures[2])
                 part1 += mul
                 if domul
-                    part2 += reduce(*, (parse.(Int, m.captures)), init = 1)
+                    part2 += mul
                 end
             end
         end

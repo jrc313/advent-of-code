@@ -22,7 +22,6 @@ module Aoc202310
     const TILE_DOWN::Int = 4
     const TILE_RIGHT::Int = 5
     const TILE_LEFT::Int = 6
-    const TILE_DIR_MAP::Dict{CartesianIndex,Int} = Dict(GRID_UP => TILE_UP, GRID_DOWN => TILE_DOWN, GRID_LEFT => TILE_LEFT, GRID_RIGHT => TILE_RIGHT)
     const TILE_CHAR_MAP::Vector{Char} = [' ', 'X', '^', 'v', '>', '<']
 
     const ADJ_MAP::Vector{Vector{Point}} =
