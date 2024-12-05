@@ -22,18 +22,21 @@ module Aoc202405
 
     function solve(test::Bool)
 
-        input = parseinput(test)
-        rules = Set(r for r in input[1])
-        ruleslt = (a, b) -> in("$(a)|$(b)", rules)
-        updates = split.(input[2], ",")
+        input::Tuple{Vector{String}, Vector{String}} = parseinput(test)
+        rules::Set{String} = Set(r for r in input[1])
 
-        part1 = 0
-        part2 = 0
-        for update in updates
+        ruleslt = (a::String, b::String) -> (a * "|" * b) ∈ rules
+
+        part1::Int = 0
+        part2::Int = 0
+        for str::String in input[2]
+            update::Vector{String} = [str[i:i+1] for i in 1:3:length(str)-1]
+            middle::Int = length(update) >> 1 + 1
             if issorted(update, lt = ruleslt)
-                part1 += parse(Int, middle(update))
+                part1 += parse(Int, update[middle])
             else
-                part2 += parse(Int, middle(sort(update, lt = ruleslt)))
+                partialsort!(update, middle, lt = ruleslt)
+                part2 += parse(Int, update[middle])
             end
         end
         
@@ -41,7 +44,17 @@ module Aoc202405
     end
 
     function parseinput(test::Bool)
-        return split.(split(AocUtils.getinput(YEAR, DAY, test), "\n\n"), "\n")
+        rules = Vector{String}()
+        updates = Vector{String}()
+        vec = rules
+        for line in AocUtils.eachinputlines(YEAR, DAY, test)
+            if isempty(line)
+                vec = updates
+            else
+                push!(vec, line)
+            end
+        end
+        return (rules, updates)
     end
 
 end
