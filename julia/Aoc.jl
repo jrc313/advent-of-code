@@ -7,6 +7,10 @@ module Aoc
     const BENCH_SAMPLES = 1000
     const PROFILE_ITERATIONS = 50
 
+    function (@main)(ARGS)
+        println("AOC: ", join(ARGS, " "))
+    end
+
     function runday(year, day, test = false)
         rundays(year, day:day, false, test)
     end
@@ -58,7 +62,7 @@ module Aoc
         end
 
         header = ["Day", "Part 1", "Part 2"]
-        highlighters = ()
+        highlighters::Vector{TextHighlighter} = []
         if benchmark
             append!(header, ["Time (med)", "Memory", "Allocs"])
             totals = summarybenchrow(benchmetrics, sum, "Total")
@@ -68,12 +72,13 @@ module Aoc
             numrows = size(results, 1)
             #totalrownum, medianrownum = numrows - 1, numrows
             totalrownum = numrows
-            totalhl = Highlighter((data, i, j) -> i == totalrownum, crayon"cyan")
+            totalhl = TextHighlighter((data, i, j) -> i == totalrownum, crayon"cyan")
             #medianhl = Highlighter((data, i, j) -> i == medianrownum, crayon"magenta")
 
-            highlighters = (totalhl)#, medianhl)
+            append!(highlighters, [totalhl])#, medianhl)
         end
-        pretty_table(results; header = header, linebreaks = true, alignment = :l, hlines = :all, highlighters = highlighters)
+        tf = TextTableFormat(; @text__all_horizontal_lines())
+        pretty_table(results; column_labels = header, line_breaks = true, alignment = :l, highlighters = highlighters, backend = :text, table_format = tf, fit_table_in_display_vertically = false, maximum_number_of_rows = -1)
     end
 
     function runprofile(year, day, test = false)
