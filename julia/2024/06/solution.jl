@@ -35,7 +35,7 @@ module Aoc202406
                 pos = nextpos
             end
         end
-        return part == 1 ? count(i -> i > 0, visited)
+        return part == 1 ? count(i -> i > 0, visited) : 0
     end
 
     function solve(test::Bool)

@@ -3,13 +3,24 @@ module Aoc
     using BenchmarkTools, Suppressor, PrettyTables, ProgressMeter, ProfileView
     export runalldays, runday, benchday, benchalldays, profileday, testday
 
-    const YEARDAYS = Dict([(2022, 16), (2023, 14), (2024, 5)])
     const BENCH_SAMPLES = 1000
     const PROFILE_ITERATIONS = 50
 
-    function (@main)(ARGS)
-        println("AOC: ", join(ARGS, " "))
+    function getdirs(path::String)
+        return filter(s -> isdir("$path/$s"), readdir(path))
     end
+
+    function getdays()
+        years = Dict{Int, Vector{Int}}()
+        for yearstr in getdirs(".")
+            if tryparse(Int, yearstr) !== nothing
+                year = parse(Int, yearstr)
+                years[year] = sort([parse(Int, daystr) for daystr in getdirs("./$yearstr") if tryparse(Int, daystr) !== nothing])
+            end
+        end
+        return years
+    end
+    YEARDAYS = getdays()
 
     function runday(year, day, test = false)
         rundays(year, day:day, false, test)
@@ -37,8 +48,7 @@ module Aoc
             println("Nothing in that year")
             return
         end
-        maxdays = YEARDAYS[year]
-        @time rundays(year, 1:maxdays, benchmark)
+        @time rundays(year, YEARDAYS[year], benchmark)
     end
 
     function rundays(year, days, benchmark = false, test = false)
@@ -121,4 +131,6 @@ module Aoc
 
         return [tim mem alc]
     end
+
+    
 end

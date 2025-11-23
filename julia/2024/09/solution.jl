@@ -23,18 +23,18 @@ module Aoc202409
         files = input[1:2:end]
         space = input[2:2:end]
         
-        showvar(files)
-        showvar(space)
+        #showvar(files)
+        #showvar(space)
 
         filenum = 1
         spacenum = 1
         rfilenum = length(files)
         blocknum = 0
 
-        while filenum != rfilenum
-            
-
-        end
+        #while filenum != rfilenum
+        #    
+#
+        #end
 
         part1 = 0
         part2 = 0
