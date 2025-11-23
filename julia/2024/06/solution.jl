@@ -18,10 +18,29 @@ module Aoc202406
 
     const GUARD::Char = '^'
     const BLOCK::Char = '#'
+    const DIRS = [GRID_UP, GRID_RIGHT, GRID_DOWN, GRID_LEFT]
+
+    function rungrid(grid, pos, dir, visited, part)
+        while checkbounds(Bool, grid, pos) #&& i < 100000
+            i += 1
+            nextpos = pos + DIRS[dir]
+            if visited[nextpos] | dir > 0
+                return 0
+            end
+            if checkbounds(Bool, grid, nextpos) && grid[nextpos] == BLOCK
+                visited[pos] |= dir
+                dir = mod1(dir + 1, 4)
+            else
+                visited[pos] |= dir
+                pos = nextpos
+            end
+        end
+        return part == 1 ? count(i -> i > 0, visited)
+    end
 
     function solve(test::Bool)
 
-        dirs = [GRID_UP, GRID_RIGHT, GRID_DOWN, GRID_LEFT]
+        
 
         grid = parseinput(test)
         visited = zeros(Int, size(grid))
@@ -35,16 +54,20 @@ module Aoc202406
         i = 1
         while checkbounds(Bool, grid, pos) #&& i < 100000
             i += 1
-            nextpos = pos + dirs[dir]
+            nextpos = pos + DIRS[dir]
             if checkbounds(Bool, grid, nextpos) && grid[nextpos] == BLOCK
-                dir = dir == length(dirs) ? 1 : dir + 1
+                visited[pos] |= dir
+                dir = mod1(dir + 1, 4)
             else
-                visited[pos] = 1
+                visited[pos] |= dir
                 pos = nextpos
             end
         end
 
-        return (sum(visited), part2)
+        #showvar(grid)
+        #showvar(visited)
+
+        return (count(i -> i > 0, visited), part2)
     end
 
     function parseinput(test::Bool)
