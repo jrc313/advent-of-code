@@ -6,22 +6,6 @@ module Aoc
     const BENCH_SAMPLES = 1000
     const PROFILE_ITERATIONS = 50
 
-    function getdirs(path::String)
-        return filter(s -> isdir("$path/$s"), readdir(path))
-    end
-
-    function getdays()
-        years = Dict{Int, Vector{Int}}()
-        for yearstr in getdirs(".")
-            if tryparse(Int, yearstr) !== nothing
-                year = parse(Int, yearstr)
-                years[year] = sort([parse(Int, daystr) for daystr in getdirs("./$yearstr") if tryparse(Int, daystr) !== nothing])
-            end
-        end
-        return years
-    end
-    YEARDAYS = getdays()
-
     function runday(year, day, test = false)
         rundays(year, day:day, false, test)
     end
@@ -44,11 +28,7 @@ module Aoc
     end
 
     function runalldays(year, benchmark = false)
-        if !haskey(YEARDAYS, year)
-            println("Nothing in that year")
-            return
-        end
-        @time rundays(year, YEARDAYS[year], benchmark)
+        @time rundays(year, getdays(year), benchmark)
     end
 
     function rundays(year, days, benchmark = false, test = false)
@@ -105,7 +85,8 @@ module Aoc
     end
 
     function dynloadday(year, day)
-        @suppress include("$(year)/$(lpad(day, 2, "0"))/solution.jl")
+        #@suppress
+        include(getdayfilename(year, day))
     end
 
     function dynrunday(year, day, test = false)
@@ -132,5 +113,19 @@ module Aoc
         return [tim mem alc]
     end
 
+    function getdirs(path::String)
+        return filter(s -> isdir("$path/$s"), readdir(path))
+    end
+
+    function getdayfilename(year, day)
+        filename = "./$year/$(lpad(day, 2, "0"))/solution.jl"
+        if !isfile(filename) throw(ArgumentError("Solution for day $day of year $year not found")) end
+        return filename
+    end
+
+    function getdays(year)
+        if !isdir("./$year") throw(ArgumentError("Year $year not found")) end
+        return sort([parse(Int, daystr) for daystr in getdirs("./$year") if tryparse(Int, daystr) !== nothing])
+    end
     
 end
