@@ -29,30 +29,25 @@ module Aoc202501
         for line in input
             dir = line[1]
             num = parse(Int, line[2:end])
-            prevpos = pos
+
+            startzero = pos == 0
+
             pos = actions[dir](pos, num)
-            if pos > 99
-                #println("hi $line")
-                extrazeros += (pos ÷ 100)
-                if prevpos == 0
-                    extrazeros -= 1
+            turns = abs(pos) ÷ 100
+
+            negativepos = pos < 0
+
+            if pos > 99 || pos < 0
+                pos = mod(pos, 100)
+                if !startzero && negativepos
+                    turns += 1
                 end
-                pos = mod1(pos, 100)
                 if pos == 0
-                    extrazeros -= 1
+                    turns -= 1
                 end
             end
-            if pos < 0
-                if prevpos == 0
-                    extrazeros -= 1
-                end
-                #println("lo $line")
-                extrazeros += (-pos ÷ 100) + 1
-                pos = mod1(pos, 100)
-                if pos == 0
-                    extrazeros -= 1 
-                end
-            end
+
+            extrazeros += turns
 
             if pos == 0
                 zeros += 1
