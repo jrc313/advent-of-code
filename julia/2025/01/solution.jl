@@ -18,47 +18,35 @@ module Aoc202501
 
     function solve(test::Bool)
 
-        input = parseinput(test)
-
         pos = 50
         zeros = 0
-        extrazeros = 0
 
-        actions = Dict('R' => +, 'L' => -)
+        startzero = false
+        negativepos = false
+        turns = 0
 
-        for line in input
-            dir = line[1]
-            num = parse(Int, line[2:end])
+        for line in AocUtils.eachinputlines(YEAR, DAY, test)
 
             startzero = pos == 0
 
-            pos = actions[dir](pos, num)
-            turns = abs(pos) ÷ 100
+            dir = line[1]
+            num = parse(Int, line[2:end])
 
-            negativepos = pos < 0
+            pos = dir == 'R' ? pos + num : pos - num
 
             if pos > 99 || pos < 0
+                turns += abs(pos) ÷ 100
+                negativepos = pos < 0
                 pos = mod(pos, 100)
-                if !startzero && negativepos
-                    turns += 1
-                end
-                if pos == 0
-                    turns -= 1
-                end
+                !startzero && negativepos && (turns += 1)
+                pos == 0 && (turns -= 1)
             end
 
-            extrazeros += turns
-
-            if pos == 0
-                zeros += 1
-            end
+            pos == 0 && (zeros += 1)
 
         end
 
-        part1 = zeros
-        part2 = zeros + extrazeros
-
-        return (part1, part2)
+        return (zeros, zeros + turns)
     end
 
     function parseinput(test::Bool)
