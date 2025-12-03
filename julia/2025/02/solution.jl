@@ -16,15 +16,16 @@ module Aoc202502
         return solve(false)
     end
 
-    function isinvalid(idstr)
-        len = length(idstr)
+    function isinvalid(id)
+        len = floor(log10(id)) + 1
         !iseven(len) && return false
-        halflen = len ÷ 2
-        return idstr[1:halflen] == idstr[halflen+1:end]
+        div = 10 ^ (len ÷ 2)
+        return id ÷ div == id % div
     end
 
-    function isinvalid2(idstr)
-        idstr2 = idstr * idstr
+    function isinvalid2(id)
+        idstr = string(id)
+        idstr2 = idstr ^ 2
         return findfirst(idstr, idstr2[2:end])[1] != length(idstr)
     end
 
@@ -41,9 +42,8 @@ module Aoc202502
             rngstr = split(idrng, '-')
             rng = parse(Int, rngstr[1]):parse(Int, rngstr[2])
             for id in rng
-                idstr = string(id)
-                isinvalid(idstr) && (part1 += id)
-                isinvalid2(idstr) && (part2 += id)
+                isinvalid(id) && (part1 += id)
+                isinvalid2(id) && (part2 += id)
             end
         end
 
