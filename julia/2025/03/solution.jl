@@ -30,15 +30,15 @@ module Aoc202503
     end
 
     function findlargestjoltage(battery, size)
-        joltage = ""
+        joltage = 0
         bank = 0
 
         for i in 1:size
             (nextbank, rating) = findlargestinstring(battery[bank + 1:end - (size - i)])
             bank += nextbank
-            joltage *= rating
+            joltage += (Int(rating) - 48) * (10 ^ (size - i))
         end
-        return parse(Int, joltage)
+        return joltage
     end
 
     function solve(test::Bool)
