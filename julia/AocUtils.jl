@@ -7,8 +7,8 @@ module AocUtils
     using CSV
     using DataFrames
 
-    export Point, Point3d, getinputfilename, getinputlines, loadintmatrix, loadmatrix, manhattandist, getneighbours, showvar,
-           GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT, GRID_NEIGHBOURS,
+    export Point, Point3d, getinputfilename, getinputlines, loadintmatrix, loadmatrix, manhattandist, getneighbours, getadjacents, showvar,
+           GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT, GRID_NEIGHBOURS, GRID_ADJACENTS,
            POINT_UP, POINT_DOWN, POINT_LEFT, POINT_RIGHT, POINT_NEIGHBOURS, bounds,
            replacecharat
 
@@ -22,6 +22,7 @@ module AocUtils
     const GRID_DOWN_RIGHT::CartesianIndex = GRID_DOWN + GRID_RIGHT
 
     const GRID_NEIGHBOURS::Vector{CartesianIndex} = [GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT]
+    const GRID_ADJACENTS::Vector{CartesianIndex} = [GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT, GRID_UP_LEFT, GRID_UP_RIGHT, GRID_DOWN_LEFT, GRID_DOWN_RIGHT]
 
     struct Point{T<:Real}
         x::T
@@ -137,6 +138,10 @@ module AocUtils
 
     function getneighbours(pos::CartesianIndex, matrixdims::Tuple{Int, Int})
         return filter(n -> matrixdims[1] >= n[1] > 0 && matrixdims[2] >= n[2] > 0, [pos + neighbour for neighbour in GRID_NEIGHBOURS])
+    end
+
+    function getadjacents(pos::CartesianIndex, matrixdims::Tuple{Int, Int})
+        return filter(n -> matrixdims[1] >= n[1] > 0 && matrixdims[2] >= n[2] > 0, [pos + neighbour for neighbour in GRID_ADJACENTS])
     end
 
     function getneighbours(pos::Point, matrixdims::Tuple{Int, Int})
