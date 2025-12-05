@@ -161,4 +161,18 @@ module AocUtils
         return r1.start <= r2.stop && r1.stop >= r2.start
     end
 
+    function collapseranges(ranges)
+        sort!(ranges, by = r -> r[1])
+        collapsed = [ranges[1]]
+        for r2 in ranges[2:end]
+            r1 = collapsed[end]
+            if r1[end] >= r2[1]
+                collapsed[end] = r1[1]:max(r1[end], r2[end])
+            else
+                push!(collapsed, r2)
+            end
+        end
+        return collapsed
+    end
+
 end
