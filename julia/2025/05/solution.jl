@@ -34,9 +34,7 @@ module Aoc202505
             end
         end
 
-        for rng in rngs
-            part2 += length(rng)
-        end
+        part2 = reduce((n, r) -> n += length(r), rngs, init = 0)
 
         return (part1, part2)
     end
