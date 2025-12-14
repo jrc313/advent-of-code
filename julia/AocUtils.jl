@@ -10,7 +10,7 @@ module AocUtils
     export Point, Point3d, getinputfilename, getinputlines, loadintmatrix, loadmatrix, manhattandist, getneighbours, getadjacents, showvar,
            GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT, GRID_NEIGHBOURS, GRID_ADJACENTS,
            POINT_UP, POINT_DOWN, POINT_LEFT, POINT_RIGHT, POINT_NEIGHBOURS, bounds,
-           replacecharat
+           replacecharat, distance
 
     const GRID_UP::CartesianIndex = CartesianIndex(-1, 0)
     const GRID_DOWN::CartesianIndex = CartesianIndex(1, 0)
@@ -52,6 +52,16 @@ module AocUtils
     Base.:reverse(p::Point) = Point(p.y, p.x)
     Base.:(*)(p::Point, i::Int) = Point(p.x * i, p.y * i)
     Base.:(*)(i::Int, p::Point) = Point(p.x * i, p.y * i)
+    
+    function Base.parse(::Type{T}, str::AbstractString) where {T<:Point}
+        parts = parse.(Int, split(str, ','))
+        return Point(parts[1], parts[2])
+    end
+
+    function Base.parse(::Type{T}, str::AbstractString) where {T<:Point3d}
+        parts = parse.(Int, split(str, ','))
+        return Point3d(parts[1], parts[2], parts[3])
+    end
 
     function manhattandist(a::Point, b::Point)
         return abs(a.x - b.x) + abs(a.y - b.y)
@@ -59,6 +69,14 @@ module AocUtils
     
     function manhattandist(a::Point3d, b::Point3d)
         return abs(a.x - b.x) + abs(a.y - b.y) + abs(a.z - b.z)
+    end
+
+    function distance(a::Point, b::Point)
+        return sqrt((a.x - b.x)^2 + (a.y - b.y)^2)
+    end
+
+    function distance(a::Point3d, b::Point3d)
+        return sqrt((a.x - b.x)^2 + (a.y - b.y)^2 + (a.z - b.z)^2)
     end
 
     function bounds(points::Vector{Point})
