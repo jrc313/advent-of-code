@@ -10,7 +10,7 @@ module AocUtils
     export Point, Point3d, getinputfilename, getinputlines, loadintmatrix, loadmatrix, manhattandist, getneighbours, getadjacents, showvar,
            GRID_UP, GRID_DOWN, GRID_LEFT, GRID_RIGHT, GRID_NEIGHBOURS, GRID_ADJACENTS,
            POINT_UP, POINT_DOWN, POINT_LEFT, POINT_RIGHT, POINT_NEIGHBOURS, bounds,
-           replacecharat, distance
+           replacecharat, distance, distancesquared
 
     const GRID_UP::CartesianIndex = CartesianIndex(-1, 0)
     const GRID_DOWN::CartesianIndex = CartesianIndex(1, 0)
@@ -75,8 +75,16 @@ module AocUtils
         return sqrt((a.x - b.x)^2 + (a.y - b.y)^2)
     end
 
+    function distancesquared(a::Point, b::Point)
+        return (a.x - b.x)^2 + (a.y - b.y)^2
+    end
+
     function distance(a::Point3d, b::Point3d)
         return sqrt((a.x - b.x)^2 + (a.y - b.y)^2 + (a.z - b.z)^2)
+    end
+
+    function distancesquared(a::Point3d, b::Point3d)
+        return (a.x - b.x)^2 + (a.y - b.y)^2 + (a.z - b.z)^2
     end
 
     function bounds(points::Vector{Point})
