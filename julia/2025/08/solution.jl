@@ -105,7 +105,7 @@ module Aoc202508
     end
 
     function parseinput(test::Bool)
-        boxes::Vector{Point3d} = [parse(Point3d, line) for line in AocUtils.eachinputlines(YEAR, DAY, test)]
+        return [parse(Point3d, line) for line in AocUtils.eachinputlines(YEAR, DAY, test)]
     end
 
 end
